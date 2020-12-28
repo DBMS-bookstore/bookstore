@@ -11,7 +11,7 @@ class TestPayment:
     seller_id: str
     store_id: str
     buyer_id: str
-    password:str
+    password: str
     buy_book_info_list: [Book]
     total_price: int
     order_id: str

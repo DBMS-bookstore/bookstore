@@ -87,7 +87,6 @@ class BookDB:
                     book.pictures.append(encode_str)
             books.append(book)
             # print(tags.decode('utf-8'))
-
             # print(book.tags, len(book.picture))
             # print(book)
             # print(tags)

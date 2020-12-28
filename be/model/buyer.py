@@ -4,7 +4,7 @@ import json
 import logging
 from be.model import db_conn
 from be.model import error
-
+import time
 
 class Buyer(db_conn.DBConn):
     def __init__(self):
@@ -47,11 +47,12 @@ class Buyer(db_conn.DBConn):
                         "INSERT INTO new_order_detail(order_id, book_id, count, price) "
                         "VALUES(?, ?, ?, ?);",
                         (uid, book_id, count, price))
-
+            print('插入订单')
+            # 插入订单更新：添加两个属性
             self.conn.execute(
-                "INSERT INTO new_order(order_id, store_id, user_id) "
-                "VALUES(?, ?, ?);",
-                (uid, store_id, user_id))
+                "INSERT INTO new_order(order_id, store_id, user_id, state, create_time) "
+                "VALUES(?, ?, ?, ?, ?);",
+                (uid, store_id, user_id, 0, time.time()))
             self.conn.commit()
             order_id = uid
         except sqlite.Error as e:
@@ -111,21 +112,26 @@ class Buyer(db_conn.DBConn):
                                   (total_price, buyer_id, total_price))
             if cursor.rowcount == 0:
                 return error.error_not_sufficient_funds(order_id)
-
+            # 加钱的是卖家
             cursor = conn.execute("UPDATE user set balance = balance + ?"
                                   "WHERE user_id = ?",
-                                  (total_price, buyer_id))
+                                  (total_price, seller_id))
 
             if cursor.rowcount == 0:
                 return error.error_non_exist_user_id(buyer_id)
 
-            cursor = conn.execute("DELETE FROM new_order WHERE order_id = ?", (order_id, ))
+            # 修改订单状态
+            cursor = conn.execute("UPDATE new_order set  state = ?", (1,))
             if cursor.rowcount == 0:
                 return error.error_invalid_order_id(order_id)
 
-            cursor = conn.execute("DELETE FROM new_order_detail where order_id = ?", (order_id, ))
-            if cursor.rowcount == 0:
-                return error.error_invalid_order_id(order_id)
+            # cursor = conn.execute("DELETE FROM new_order WHERE order_id = ?", (order_id, ))
+            # if cursor.rowcount == 0:
+            #     return error.error_invalid_order_id(order_id)
+            #
+            # cursor = conn.execute("DELETE FROM new_order_detail where order_id = ?", (order_id, ))
+            # if cursor.rowcount == 0:
+            #     return error.error_invalid_order_id(order_id)
 
             conn.commit()
 

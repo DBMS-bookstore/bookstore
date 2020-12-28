@@ -30,15 +30,20 @@ class Store:
                 " PRIMARY KEY(store_id, book_id))"
             )
 
+            # 添加订单信息：
+            # ①订单状态（0：未付款，1：已付款，2：已发货，3：已收货）
+            # ②订单提交时间：时间戳
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS new_order( "
-                "order_id TEXT PRIMARY KEY, user_id TEXT, store_id TEXT)"
+                "order_id TEXT PRIMARY KEY, user_id TEXT, store_id TEXT, state INTEGER, create_time TIMESTAMP )"
             )
 
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS new_order_detail( "
                 "order_id TEXT, book_id TEXT, count INTEGER, price INTEGER,  "
-                "PRIMARY KEY(order_id, book_id))"
+                "PRIMARY KEY(order_id, book_id),"
+                "CONSTRAINT '1' FOREIGN KEY (order_id) REFERENCES new_order(order_id) "
+                "ON DELETE CASCADE)"
             )
 
             conn.commit()

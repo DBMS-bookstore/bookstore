@@ -19,7 +19,7 @@ def jwt_encode(user_id: str, terminal: str) -> str:
         key=user_id,
         algorithm="HS256",
     )
-    return encoded.decode("utf-8")
+    return encoded.encode("utf-8").decode("utf-8")
 
 
 # decode a JWT to a json string like:
@@ -63,6 +63,7 @@ class User(db_conn.DBConn):
                 (user_id, password, 0, token, terminal), )
             self.conn.commit()
         except sqlite.Error:
+            # 已存在user_id
             return error.error_exist_user_id(user_id)
         return 200, "ok"
 
@@ -80,9 +81,11 @@ class User(db_conn.DBConn):
         cursor = self.conn.execute("SELECT password from user where user_id=?", (user_id,))
         row = cursor.fetchone()
         if row is None:
+            print('没有该用户')
             return error.error_authorization_fail()
 
         if password != row[0]:
+            print('密码错误')
             return error.error_authorization_fail()
 
         return 200, "ok"
@@ -90,10 +93,11 @@ class User(db_conn.DBConn):
     def login(self, user_id: str, password: str, terminal: str) -> (int, str, str):
         token = ""
         try:
+            # 验证密码
             code, message = self.check_password(user_id, password)
             if code != 200:
                 return code, message, ""
-
+            # 生成token？
             token = jwt_encode(user_id, terminal)
             cursor = self.conn.execute(
                 "UPDATE user set token= ? , terminal = ? where user_id = ?",
