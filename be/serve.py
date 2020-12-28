@@ -10,9 +10,7 @@ from be.model.store import init_database
 import time
 from threading import Timer
 from be.model import store
-from be.model.delete_order import Delete_order
-import threading
-from threading import Lock, Thread
+
 bp_shutdown = Blueprint("shutdown", __name__)
 
 
@@ -48,7 +46,7 @@ def be_run():
     app.register_blueprint(auth.bp_auth)
     app.register_blueprint(seller.bp_seller)
     app.register_blueprint(buyer.bp_buyer)
-    delete_order(3)
+    delete_order(30)
     app.run()
 
 
@@ -60,7 +58,7 @@ def delete_order(seconds):
         order_id = row[0]
         print(order_id)
         create_time = row[1]
-        if time.time() - create_time >= 10:
+        if time.time() - create_time >= 60:
             conn.execute("Delete FROM new_order WHERE order_id = ?", (order_id,))
             conn.execute("Delete FROM new_order_detail WHERE order_id = ?", (order_id,))
     conn.commit()
