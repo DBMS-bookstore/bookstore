@@ -10,7 +10,7 @@ error_code = {
     517: "stock level low, book id {}",
     518: "invalid order id {}",
     519: "not sufficient funds, order id {}",
-    520: "",
+    520: "already delivered or take delivery",
     521: "",
     522: "",
     523: "",
@@ -64,3 +64,7 @@ def error_authorization_fail():
 
 def error_and_message(code, message):
     return code, message
+
+
+def error_already_delivered(code, message):
+    return 520, error_code[520]
