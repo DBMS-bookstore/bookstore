@@ -5,6 +5,7 @@ import logging
 from be.model import db_conn
 from be.model import error
 import time
+from bson import json_util
 
 class Buyer(db_conn.DBConn):
     def __init__(self):
@@ -192,3 +193,30 @@ class Buyer(db_conn.DBConn):
             return 528, "{}".format(str(e))
         except BaseException as e:
             return 530, "{}".format(str(e))
+
+    def query_order(self, user_id):
+        try:
+            order_list = []
+            cursor = self.conn.execute("SELECT password  from user where user_id=?", (user_id,))
+            row = cursor.fetchone()
+            if row is None:
+                response = error.error_authorization_fail()
+                code = response[0]
+                message = response[1]
+                return code, message, order_list
+
+            cursor = self.conn.execute(
+                "SELECT order_id FROM new_order WHERE user_id = ?",
+                (user_id,))
+
+            if cursor.rowcount != 0:
+                for row in cursor:
+                    order_list.append(row[0])
+            self.conn.commit()
+        except sqlite.Error as e:
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
+        # print(order_list)
+        return 200, "ok", order_list
+
