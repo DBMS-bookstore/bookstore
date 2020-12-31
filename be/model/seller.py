@@ -58,3 +58,18 @@ class Seller(db_conn.DBConn):
         except BaseException as e:
             return 530, "{}".format(str(e))
         return 200, "ok"
+
+    def delivery_book(self, user_id: str, order_id: str) -> (int, str):
+        try:
+            if not self.user_id_exist(user_id):
+                return error.error_non_exist_user_id(user_id)
+            if self.store_id_exist(order_id):
+                return error.error_exist_store_id(order_id)
+            self.conn.execute("UPDATE new_order set  state = ?"
+                              "WHERE order_id = ?", (2, order_id))
+            self.conn.commit()
+        except sqlite.Error as e:
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
+        return 200, "ok"
