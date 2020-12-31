@@ -166,3 +166,29 @@ class Buyer(db_conn.DBConn):
             return 530, "{}".format(str(e))
 
         return 200, "ok"
+
+    def cancel_order(self, buyer_id: str, order_id: str) -> (int, str):
+        try:
+            # 不存在该用户
+            cursor = self.conn.execute("SELECT password  from user where user_id=?", (buyer_id,))
+            row = cursor.fetchone()
+            if row is None:
+                return error.error_authorization_fail()
+
+            # 不存在该订单
+            cursor = self.conn.execute("SELECT order_id,state  from new_order where order_id=? and user_id=?",
+                                       (order_id, buyer_id,))
+            row = cursor.fetchone()
+            if row is None:
+                return error.error_invalid_order_id()
+            # 用户主动删除该订单
+            elif row[1] == 2 or row[1] == 3:
+                return error.error_already_delivered()
+            self.conn.execute("Delete FROM new_order WHERE order_id = ?;", (order_id,))
+            self.conn.execute("Delete FROM new_order_detail WHERE order_id = ?;", (order_id,))
+            self.conn.commit()
+            return 200, "ok"
+        except sqlite.Error as e:
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
