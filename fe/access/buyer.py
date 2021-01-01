@@ -50,3 +50,13 @@ class Buyer:
         headers = {"token": self.token}
         r = requests.post(url, headers=headers, json=json)
         return r.status_code
+
+    def query_order(self, user_id):
+        json = {"user_id": user_id}
+        url = urljoin(self.url_prefix, "query_order")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        print('access')
+        print(r)
+        response_json = r.json()
+        return r.status_code, response_json.get("order_list")
