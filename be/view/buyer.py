@@ -57,3 +57,11 @@ def query_order():
     code, message, order_list = b.query_order(user_id)
     # print(order_list)
     return jsonify({"message": message, 'order_list': order_list}), code
+
+
+@bp_buyer.route("/query_detail_order", methods=["GET", "POST"])
+def query_detail_order():
+    order_id = request.json.get("order_id")
+    b = Buyer()
+    code, message, order_detail_list = b.query_detail_order(order_id)
+    return jsonify({"message": message, 'order_detail_list': order_detail_list}), code
