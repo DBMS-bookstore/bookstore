@@ -53,12 +53,14 @@ def be_run():
 
 def delete_order(seconds):
     conn = store.get_db_conn()
-    cursor = conn.execute("SELECT order_id, create_time FROM new_order;")
+    cursor = conn.execute("SELECT order_id, state, create_time FROM new_order;")
     for row in cursor:
         order_id = row[0]
         print(order_id)
-        create_time = row[1]
-        if time.time() - create_time >= 60:
+        create_time = row[2]
+        state = row[1]
+        # 若超时且状态为未付款
+        if (time.time() - create_time >= 60 and state == 0):
             # 增加库存
             cur = conn.execute("SELECT store_id FROM new_order WHERE order_id = ?;", (order_id,))
             row = cur.fetchone()

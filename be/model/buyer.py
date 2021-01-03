@@ -1,10 +1,12 @@
-import sqlite3 as sqlite
-import uuid
 import json
 import logging
+import sqlite3 as sqlite
+import time
+import uuid
+
 from be.model import db_conn
 from be.model import error
-import time
+
 
 class Buyer(db_conn.DBConn):
     def __init__(self):
@@ -192,3 +194,55 @@ class Buyer(db_conn.DBConn):
             return 528, "{}".format(str(e))
         except BaseException as e:
             return 530, "{}".format(str(e))
+
+    def query_order(self, user_id):
+        try:
+            order_list = []
+            cursor = self.conn.execute("SELECT password  from user where user_id=?", (user_id,))
+            row = cursor.fetchone()
+            if row is None:
+                response = error.error_authorization_fail()
+                code = response[0]
+                message = response[1]
+                return code, message, order_list
+
+            cursor = self.conn.execute(
+                "SELECT order_id FROM new_order WHERE user_id = ?",
+                (user_id,))
+
+            if cursor.rowcount != 0:
+                for row in cursor:
+                    order_list.append(row[0])
+            self.conn.commit()
+        except sqlite.Error as e:
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
+        # print(order_list)
+        return 200, "ok", order_list
+
+    def query_detail_order(self, order_id):
+        try:
+            cursor = self.conn.execute("SELECT order_id from new_order where order_id=?", (order_id,))
+
+            row = cursor.fetchone()
+            order_detail_list = []
+            if row is None:
+                return 518, "invalid order id.", order_detail_list
+            # row = cursor.fetchone()
+            else:
+
+                cursor = self.conn.execute("SELECT new_order.order_id, user_id, store_id, state, book_id, count, price "
+                                           "from new_order, new_order_detail where new_order.order_id=? and "
+                                           "new_order.order_id = new_order_detail.order_id", (order_id,))
+                for row in cursor:
+                    detail = {"order_id": row[0], "user_id": row[1], "store_id": row[2],
+                              "state": row[3], "book_id": row[4], "count": row[5], "price": row[6]}
+                    order_detail_list.append(detail)
+            self.conn.commit()
+        except sqlite.Error as e:
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
+        # print(order_list)
+        return 200, "ok", order_detail_list
