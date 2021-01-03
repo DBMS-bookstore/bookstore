@@ -246,3 +246,27 @@ class Buyer(db_conn.DBConn):
             return 530, "{}".format(str(e))
         # print(order_list)
         return 200, "ok", order_detail_list
+
+    def receive_book(self, user_id: str, order_id: str) -> (int, str):
+        try:
+            print(0)
+            if not self.user_id_exist(user_id):
+                return error.error_non_exist_user_id(user_id)
+            if not self.order_id_exist(order_id):
+                return error.error_invalid_order_id(order_id)
+            cursor = self.conn.execute("SELECT order_id,state  from new_order where order_id=?",
+                                       (order_id,))
+            row = cursor.fetchone()
+            if row is None:
+                return error.error_invalid_order_id(order_id)
+            if row[1] != 2:
+                return error.error_cannot_receive_book()
+            self.conn.execute("UPDATE new_order set  state = ?"
+                              "WHERE order_id = ?", (3, order_id))
+            self.conn.commit()
+        except sqlite.Error as e:
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
+        return 200, "ok"
+

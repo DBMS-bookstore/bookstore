@@ -41,33 +41,9 @@ class TestDeliveryBook:
         assert code == 200
         code = self.gen_book.seller.delivery_book(self.seller_id, self.order_id)
         assert code == 200
-
-    def test_non_exist_user_id(self):
-        self.seller_id = self.seller_id + "_x"
-        code = self.buyer.add_funds(self.total_price)
-        assert code == 200
-        code = self.buyer.payment(self.order_id)
-        assert code == 200
-        code = self.gen_book.seller.delivery_book(self.seller_id, self.order_id)
-        assert code == 511
-
-    def test_non_exist_order_id(self):
-        self.order_id = self.order_id + "_x"
-
-        code = self.gen_book.seller.delivery_book(self.seller_id, self.order_id)
-        assert code == 518
-
-    def test_already_delivered(self):
-        code = self.buyer.add_funds(self.total_price)
-        assert code == 200
-        code = self.buyer.payment(self.order_id)
-        assert code == 200
-        code = self.gen_book.seller.delivery_book(self.seller_id, self.order_id)
+        code = self.buyer.receive_book(self.buyer_id, self.order_id)
         assert code == 200
 
-        code = self.gen_book.seller.delivery_book(self.seller_id, self.order_id)
-        assert code == 520
-
-    def test_no_payment_to_delivered(self):
-        code = self.gen_book.seller.delivery_book(self.seller_id, self.order_id)
-        assert code == 521
+    def test_cannot_receive_book(self):
+        code = self.buyer.receive_book(self.buyer_id, self.order_id)
+        assert code == 522
