@@ -1,4 +1,3 @@
-
 error_code = {
     401: "authorization fail.",
     511: "non exist user id {}",
@@ -11,8 +10,8 @@ error_code = {
     518: "invalid order id {}",
     519: "not sufficient funds, order id {}",
     520: "already delivered or take delivery",
-    521: "",
-    522: "",
+    521: "no payment to deliver",
+    522: "can not receive book",
     523: "",
     524: "",
     525: "",
@@ -39,11 +38,11 @@ def error_exist_store_id(store_id):
 
 
 def error_non_exist_book_id(book_id):
-    return 515,  error_code[515].format(book_id)
+    return 515, error_code[515].format(book_id)
 
 
 def error_exist_book_id(book_id):
-    return 516,  error_code[516].format(book_id)
+    return 516, error_code[516].format(book_id)
 
 
 def error_stock_level_low(book_id):
@@ -66,5 +65,13 @@ def error_and_message(code, message):
     return code, message
 
 
-def error_already_delivered(code, message):
+def error_already_delivered():
     return 520, error_code[520]
+
+
+def error_no_payment_to_deliver():
+    return 521, error_code[521]
+
+
+def error_cannot_receive_book():
+    return 522, error_code[522]
