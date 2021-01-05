@@ -9,6 +9,11 @@ class Seller(db_conn.DBConn):
         db_conn.DBConn.__init__(self)
 
     def add_book(self, user_id: str, store_id: str, book_id: str, book_json_str: str, stock_level: int):
+        print(user_id)
+        print(store_id)
+        print(book_id)
+        print(book_json_str)
+        print(stock_level)
         try:
             if not self.user_id_exist(user_id):
                 return error.error_non_exist_user_id(user_id)

@@ -13,7 +13,6 @@ class TestAddBook:
         self.store_id = "test_add_books_store_id_{}".format(str(uuid.uuid1()))
         self.password = self.seller_id
         self.seller = register_new_seller(self.seller_id, self.password)
-
         code = self.seller.create_store(self.store_id)
         assert code == 200
         book_db = book.BookDB()
