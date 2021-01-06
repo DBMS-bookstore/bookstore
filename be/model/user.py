@@ -1,10 +1,11 @@
 import jwt
 import time
 import logging
-import sqlite3 as sqlite
 from be.model import error
 from be.model import db_conn
-
+import sqlalchemy
+from init_db import ConnectDB
+from init_db.ConnectDB import Session
 # encode a json string like:
 #   {
 #       "user_id": [user name],
@@ -12,7 +13,7 @@ from be.model import db_conn
 #       "timestamp": [ts]} to a JWT
 #   }
 
-
+U = ConnectDB.User
 def jwt_encode(user_id: str, terminal: str) -> str:
     encoded = jwt.encode(
         {"user_id": user_id, "terminal": terminal, "timestamp": time.time()},
@@ -57,19 +58,19 @@ class User(db_conn.DBConn):
         try:
             terminal = "terminal_{}".format(str(time.time()))
             token = jwt_encode(user_id, terminal)
-            self.conn.execute(
-                "INSERT into user(user_id, password, balance, token, terminal) "
-                "VALUES (?, ?, ?, ?, ?);",
-                (user_id, password, 0, token, terminal), )
-            self.conn.commit()
-        except sqlite.Error:
+            user_obj = U(user_id=user_id, password=password, balance=0, token=token, terminal=terminal)
+            self.Session.add(user_obj)
+            # self.Session.execute(
+            #     "INSERT INTO user (user_id, password, balance, token, terminal) values (:user_id, :password, 0, :token, :terminal)",{"user_id":user_id,"password": password,"token":token,"terminal":terminal }
+            #     )
+            self.Session.commit()
+        except sqlalchemy.exc.IntegrityError:
             # 已存在user_id
             return error.error_exist_user_id(user_id)
         return 200, "ok"
 
     def check_token(self, user_id: str, token: str) -> (int, str):
-        cursor = self.conn.execute("SELECT token from user where user_id=?", (user_id,))
-        row = cursor.fetchone()
+        row = self.Session.query(U.token).filter(U.user_id == user_id).first()
         if row is None:
             return error.error_authorization_fail()
         db_token = row[0]
@@ -78,8 +79,7 @@ class User(db_conn.DBConn):
         return 200, "ok"
 
     def check_password(self, user_id: str, password: str) -> (int, str):
-        cursor = self.conn.execute("SELECT password from user where user_id=?", (user_id,))
-        row = cursor.fetchone()
+        row = self.Session.query(U.password).filter(U.user_id == user_id).first()
         if row is None:
             print('没有该用户')
             return error.error_authorization_fail()
@@ -97,15 +97,15 @@ class User(db_conn.DBConn):
             code, message = self.check_password(user_id, password)
             if code != 200:
                 return code, message, ""
-            # 生成token？
+            # 生成token
             token = jwt_encode(user_id, terminal)
-            cursor = self.conn.execute(
-                "UPDATE user set token= ? , terminal = ? where user_id = ?",
-                (token, terminal, user_id), )
-            if cursor.rowcount == 0:
+            row = self.Session.query(U.token,U.terminal).filter(U.user_id==user_id).first()
+            if row is None:
                 return error.error_authorization_fail() + ("", )
-            self.conn.commit()
-        except sqlite.Error as e:
+            row[0] == token
+            row[1] == terminal
+            self.Session.commit()
+        except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e)), ""
         except BaseException as e:
             return 530, "{}".format(str(e)), ""
@@ -120,14 +120,13 @@ class User(db_conn.DBConn):
             terminal = "terminal_{}".format(str(time.time()))
             dummy_token = jwt_encode(user_id, terminal)
 
-            cursor = self.conn.execute(
-                "UPDATE user SET token = ?, terminal = ? WHERE user_id=?",
-                (dummy_token, terminal, user_id), )
-            if cursor.rowcount == 0:
-                return error.error_authorization_fail()
-
-            self.conn.commit()
-        except sqlite.Error as e:
+            row = self.Session.query(U.token, U.terminal).filter(U.user_id == user_id).first()
+            if row is None:
+                return error.error_authorization_fail() + ("",)
+            row[0] == dummy_token
+            row[1] == terminal
+            self.Session.commit()
+        except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
             return 530, "{}".format(str(e))
@@ -139,12 +138,13 @@ class User(db_conn.DBConn):
             if code != 200:
                 return code, message
 
-            cursor = self.conn.execute("DELETE from user where user_id=?", (user_id,))
-            if cursor.rowcount == 1:
-                self.conn.commit()
+            row = self.Session.query(U).filter(U.user_id == user_id)
+            if row is not None:
+                row.delete()
+                self.Session.commit()
             else:
                 return error.error_authorization_fail()
-        except sqlite.Error as e:
+        except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
             return 530, "{}".format(str(e))
@@ -158,14 +158,14 @@ class User(db_conn.DBConn):
 
             terminal = "terminal_{}".format(str(time.time()))
             token = jwt_encode(user_id, terminal)
-            cursor = self.conn.execute(
-                "UPDATE user set password = ?, token= ? , terminal = ? where user_id = ?",
-                (new_password, token, terminal, user_id), )
-            if cursor.rowcount == 0:
+            row = self.Session.query(U.password, U.token, U.terminal).filter(U.user_id == user_id).first()
+            if row is None:
                 return error.error_authorization_fail()
-
-            self.conn.commit()
-        except sqlite.Error as e:
+            row[0] = new_password
+            row[1] = token
+            row[2] = terminal
+            self.Session.commit()
+        except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
             return 530, "{}".format(str(e))
