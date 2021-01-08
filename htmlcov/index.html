@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage report</title>
+    <link rel="icon" sizes="32x32" href="favicon_32.png">
+    <link rel="stylesheet" href="style.css" type="text/css">
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="jquery.ba-throttle-debounce.min.js"></script>
+    <script type="text/javascript" src="jquery.tablesorter.min.js"></script>
+    <script type="text/javascript" src="jquery.hotkeys.js"></script>
+    <script type="text/javascript" src="coverage_html.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(coverage.index_ready);
+    </script>
+</head>
+<body class="indexfile">
+<div id="header">
+    <div class="content">
+        <h1>Coverage report:
+            <span class="pc_cov">62%</span>
+        </h1>
+        <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" />
+        <form id="filter_container">
+            <input id="filter" type="text" value="" placeholder="filter..." />
+        </form>
+    </div>
+</div>
+<div class="help_panel">
+    <img id="panel_icon" src="keybd_open.png" alt="Hide keyboard shortcuts" />
+    <p class="legend">Hot-keys on this page</p>
+    <div>
+    <p class="keyhelp">
+        <span class="key">n</span>
+        <span class="key">s</span>
+        <span class="key">m</span>
+        <span class="key">x</span>
+        <span class="key">c</span> &nbsp; change column sorting
+    </p>
+    </div>
+</div>
+<div id="index">
+    <table class="index">
+        <thead>
+            <tr class="tablehead" title="Click to sort">
+                <th class="name left headerSortDown shortkey_n">Module</th>
+                <th class="shortkey_s">statements</th>
+                <th class="shortkey_m">missing</th>
+                <th class="shortkey_x">excluded</th>
+                <th class="right shortkey_c">coverage</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr class="total">
+                <td class="name left">Total</td>
+                <td>1770</td>
+                <td>664</td>
+                <td>0</td>
+                <td class="right" data-ratio="1106 1770">62%</td>
+            </tr>
+        </tfoot>
+        <tbody>
+            <tr class="file">
+                <td class="name left"><a href="be___init___py.html">be\__init__.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="be_model___init___py.html">be\model\__init__.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="be_model_buyer_py.html">be\model\buyer.py</a></td>
+                <td>199</td>
+                <td>138</td>
+                <td>0</td>
+                <td class="right" data-ratio="61 199">31%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="be_model_db_conn_py.html">be\model\db_conn.py</a></td>
+                <td>31</td>
+                <td>4</td>
+                <td>0</td>
+                <td class="right" data-ratio="27 31">87%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="be_model_error_py.html">be\model\error.py</a></td>
+                <td>29</td>
+                <td>8</td>
+                <td>0</td>
+                <td class="right" data-ratio="21 29">72%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="be_model_seller_py.html">be\model\seller.py</a></td>
+                <td>88</td>
+                <td>46</td>
+                <td>0</td>
+                <td class="right" data-ratio="42 88">48%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="be_model_store_py.html">be\model\store.py</a></td>
+                <td>28</td>
+                <td>13</td>
+                <td>0</td>
+                <td class="right" data-ratio="15 28">54%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="be_model_user_py.html">be\model\user.py</a></td>
+                <td>131</td>
+                <td>76</td>
+                <td>0</td>
+                <td class="right" data-ratio="55 131">42%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="be_serve_py.html">be\serve.py</a></td>
+                <td>62</td>
+                <td>14</td>
+                <td>0</td>
+                <td class="right" data-ratio="48 62">77%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="be_view___init___py.html">be\view\__init__.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="be_view_auth_py.html">be\view\auth.py</a></td>
+                <td>37</td>
+                <td>16</td>
+                <td>0</td>
+                <td class="right" data-ratio="21 37">57%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="be_view_buyer_py.html">be\view\buyer.py</a></td>
+                <td>53</td>
+                <td>20</td>
+                <td>0</td>
+                <td class="right" data-ratio="33 53">62%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="be_view_seller_py.html">be\view\seller.py</a></td>
+                <td>34</td>
+                <td>5</td>
+                <td>0</td>
+                <td class="right" data-ratio="29 34">85%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe___init___py.html">fe\__init__.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_access___init___py.html">fe\access\__init__.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_access_auth_py.html">fe\access\auth.py</a></td>
+                <td>31</td>
+                <td>13</td>
+                <td>0</td>
+                <td class="right" data-ratio="18 31">58%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_access_book_py.html">fe\access\book.py</a></td>
+                <td>70</td>
+                <td>1</td>
+                <td>0</td>
+                <td class="right" data-ratio="69 70">99%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_access_buyer_py.html">fe\access\buyer.py</a></td>
+                <td>64</td>
+                <td>21</td>
+                <td>0</td>
+                <td class="right" data-ratio="43 64">67%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_access_new_buyer_py.html">fe\access\new_buyer.py</a></td>
+                <td>8</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="8 8">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_access_new_seller_py.html">fe\access\new_seller.py</a></td>
+                <td>8</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="8 8">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_access_seller_py.html">fe\access\seller.py</a></td>
+                <td>37</td>
+                <td>5</td>
+                <td>0</td>
+                <td class="right" data-ratio="32 37">86%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_bench___init___py.html">fe\bench\__init__.py</a></td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 0">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_bench_run_py.html">fe\bench\run.py</a></td>
+                <td>13</td>
+                <td>5</td>
+                <td>0</td>
+                <td class="right" data-ratio="8 13">62%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_bench_session_py.html">fe\bench\session.py</a></td>
+                <td>47</td>
+                <td>22</td>
+                <td>0</td>
+                <td class="right" data-ratio="25 47">53%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_bench_workload_py.html">fe\bench\workload.py</a></td>
+                <td>125</td>
+                <td>24</td>
+                <td>0</td>
+                <td class="right" data-ratio="101 125">81%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_conf_py.html">fe\conf.py</a></td>
+                <td>11</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="11 11">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_conftest_py.html">fe\conftest.py</a></td>
+                <td>17</td>
+                <td>4</td>
+                <td>0</td>
+                <td class="right" data-ratio="13 17">76%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_gen_book_data_py.html">fe\test\gen_book_data.py</a></td>
+                <td>48</td>
+                <td>4</td>
+                <td>0</td>
+                <td class="right" data-ratio="44 48">92%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_test_add_book_py.html">fe\test\test_add_book.py</a></td>
+                <td>35</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="35 35">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_test_add_funds_py.html">fe\test\test_add_funds.py</a></td>
+                <td>22</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="22 22">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_test_add_stock_level_py.html">fe\test\test_add_stock_level.py</a></td>
+                <td>38</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="38 38">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_test_bench_py.html">fe\test\test_bench.py</a></td>
+                <td>6</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="6 6">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_test_cancel_order_py.html">fe\test\test_cancel_order.py</a></td>
+                <td>57</td>
+                <td>38</td>
+                <td>0</td>
+                <td class="right" data-ratio="19 57">33%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_test_create_store_py.html">fe\test\test_create_store.py</a></td>
+                <td>19</td>
+                <td>6</td>
+                <td>0</td>
+                <td class="right" data-ratio="13 19">68%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_test_delivery_book_py.html">fe\test\test_delivery_book.py</a></td>
+                <td>59</td>
+                <td>39</td>
+                <td>0</td>
+                <td class="right" data-ratio="20 59">34%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_test_login_py.html">fe\test\test_login.py</a></td>
+                <td>28</td>
+                <td>14</td>
+                <td>0</td>
+                <td class="right" data-ratio="14 28">50%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_test_new_order_py.html">fe\test\test_new_order.py</a></td>
+                <td>39</td>
+                <td>23</td>
+                <td>0</td>
+                <td class="right" data-ratio="16 39">41%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_test_password_py.html">fe\test\test_password.py</a></td>
+                <td>32</td>
+                <td>17</td>
+                <td>0</td>
+                <td class="right" data-ratio="15 32">47%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_test_payment_py.html">fe\test\test_payment.py</a></td>
+                <td>59</td>
+                <td>34</td>
+                <td>0</td>
+                <td class="right" data-ratio="25 59">42%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_test_query_detail_order_py.html">fe\test\test_query_detail_order.py</a></td>
+                <td>23</td>
+                <td>10</td>
+                <td>0</td>
+                <td class="right" data-ratio="13 23">57%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_test_query_order_py.html">fe\test\test_query_order.py</a></td>
+                <td>28</td>
+                <td>15</td>
+                <td>0</td>
+                <td class="right" data-ratio="13 28">46%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_test_receive_book_py.html">fe\test\test_receive_book.py</a></td>
+                <td>39</td>
+                <td>23</td>
+                <td>0</td>
+                <td class="right" data-ratio="16 39">41%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_test_register_py.html">fe\test\test_register.py</a></td>
+                <td>30</td>
+                <td>6</td>
+                <td>0</td>
+                <td class="right" data-ratio="24 30">80%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="fe_test_test_timeout_auto_cancle_order_py.html">fe\test\test_timeout_auto_cancle_order.py</a></td>
+                <td>26</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="26 26">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="init_db_ConnectDB_py.html">init_db\ConnectDB.py</a></td>
+                <td>59</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="59 59">100%</td>
+            </tr>
+        </tbody>
+    </table>
+    <p id="no_rows">
+        No items found using the specified filter.
+    </p>
+</div>
+<div id="footer">
+    <div class="content">
+        <p>
+            <a class="nav" href="https://coverage.readthedocs.io">coverage.py v5.3.1</a>,
+            created at 2021-01-08 22:41 +0800
+        </p>
+    </div>
+</div>
+</body>
+</html>
