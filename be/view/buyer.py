@@ -19,6 +19,7 @@ def new_order():
 
     b = Buyer()
     code, message, order_id = b.new_order(user_id, store_id, id_and_count)
+    # print("route" + order_id)
     return jsonify({"message": message, "order_id": order_id}), code
 
 

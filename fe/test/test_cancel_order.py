@@ -48,5 +48,6 @@ class TestCancelOrder:
         # ok, buy_book_id_list = self.gen_book.gen(non_exist_book_id=False, low_stock_level=False)
         # assert ok
         # code, order_id = self.buyer.new_order(self.store_id, buy_book_id_list)
+        print(self.order_id)
         code = self.buyer.cancel_order(self.buyer_id, self.order_id)
         assert code == 200
