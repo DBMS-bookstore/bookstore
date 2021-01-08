@@ -47,3 +47,23 @@ class TestDeliveryBook:
     def test_cannot_receive_book(self):
         code = self.buyer.receive_book(self.buyer_id, self.order_id)
         assert code == 522
+
+    def test_non_exist_user_id(self):
+        self.buyer_id = self.buyer_id + "_x"
+        code = self.buyer.receive_book(self.buyer_id, self.order_id)
+        assert code == 511
+
+    def test_non_exist_order_id(self):
+        self.order_id = self.order_id + "_x"
+        code = self.buyer.receive_book(self.buyer_id, self.order_id)
+        assert code == 518
+
+    def test_have_not_delivered(self):
+        code = self.buyer.add_funds(self.total_price)
+        assert code == 200
+        code = self.buyer.receive_book(self.buyer_id, self.order_id)
+        assert code != 200
+        code = self.buyer.payment(self.order_id)
+        assert code == 200
+        code = self.buyer.receive_book(self.buyer_id, self.order_id)
+        assert code != 200

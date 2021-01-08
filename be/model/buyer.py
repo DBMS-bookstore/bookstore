@@ -85,10 +85,10 @@ class Buyer(db_conn.DBConn):
                 return error.error_not_sufficient_funds(order_id)
             row2.balance -= total_price
             # 加钱的是卖家
-            row5 = self.Session.query(User).filter(User.user_id == seller_id).first()
-            if row5 is None:
-                return error.error_non_exist_user_id(seller_id)
-            row5.balance += total_price
+            # row5 = self.Session.query(User).filter(User.user_id == seller_id).first()
+            # if row5 is None:
+            #     return error.error_non_exist_user_id(seller_id)
+            # row5.balance += total_price
             # 修改订单状态
             row6 = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
             if row6 is None:
@@ -258,12 +258,29 @@ class Buyer(db_conn.DBConn):
             if not self.order_id_exist(order_id):
                 return error.error_invalid_order_id(order_id)
             row = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
-            if row is None:
-                return error.error_invalid_order_id(order_id)
+            # if row is None:
+            #     return error.error_invalid_order_id(order_id)
             if row.state != 2:
                 return error.error_cannot_receive_book()
             row.state = 3
-            self.conn.commit()
+            cursor = self.Session.query(New_order_detail.book_id, New_order_detail.count,
+                                        New_order_detail.price).filter(New_order_detail.order_id == order_id).all()
+            total_price = 0
+            for row4 in cursor:
+                count = row4[1]
+                price = row4[2]
+                total_price = total_price + price * count
+            row1 = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
+            row3 = self.Session.query(User_store).filter(User_store.store_id == row1.store_id).first()
+            if row3 is None:
+                return error.error_non_exist_store_id(row1.store_id)
+
+            seller_id = row3.user_id
+            row5 = self.Session.query(User).filter(User.user_id == seller_id).first()
+            if row5 is None:
+                return error.error_non_exist_user_id(seller_id)
+            row5.balance += total_price
+            self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
