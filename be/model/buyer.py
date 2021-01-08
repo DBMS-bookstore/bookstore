@@ -197,12 +197,12 @@ class Buyer(db_conn.DBConn):
             if row is None:
                 return 518, "invalid order id.", order_detail_list
             else:
-                cursor = self.Session.query("SELECT new_order.order_id, user_id, store_id, state, book_id, count, price "
-                                           "from new_order, new_order_detail where new_order.order_id=? and "
-                                           "new_order.order_id = new_order_detail.order_id", (order_id,))
+                cursor = self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).all()
+                cursor1 = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
                 for row in cursor:
-                    detail = {"order_id": row[0], "user_id": row[1], "store_id": row[2],
-                              "state": row[3], "book_id": row[4], "count": row[5], "price": row[6]}
+                    detail = {"order_id": row.order_id, "book_id": row.book_id, "count": row.count,
+                              "price": row.price, "state": cursor1.state, "store_id": cursor1.store_id,
+                              "create_time": cursor1.create_time}
                     order_detail_list.append(detail)
             self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
