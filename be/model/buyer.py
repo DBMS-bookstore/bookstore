@@ -22,17 +22,15 @@ class Buyer(db_conn.DBConn):
             uid = "{}_{}_{}".format(user_id, store_id, str(uuid.uuid1()))
             order_id = uid
             for book_id, count in id_and_count:
-                row = self.Session.query(Store.stock_level, Store.book_info).filter(Store.store_id==store_id,Store.book_id==book_id).first()
+                row = self.Session.query(Store).filter(Store.store_id==store_id,Store.book_id==book_id).first()
                 if row is None:
                     return error.error_non_exist_book_id(book_id) + (order_id, )
-                stock_level = row[0]
-                book_info = row[1]
-                book_info_json = json.loads(book_info)
+                book_info_json = json.loads(row.book_info)
                 price = book_info_json.get("price")
-                if stock_level < count:
+                if row.stock_level < count:
                     return error.error_stock_level_low(book_id) + (order_id,)
                 else:
-                    stock_level -= count
+                    row.stock_level -= count
                 new_order = New_order_detail(order_id=uid, book_id=book_id, count=count, price=price)
                 self.Session.add(new_order)
             # print('插入订单')
