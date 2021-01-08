@@ -22,7 +22,7 @@ class Auth:
             "password": password
         }
         url = urljoin(self.url_prefix, "register")
-        r = requests.post(url, json=json)
+        r = requests.post(url, json=json, verify = False)
         return r.status_code
 
     def password(self, user_id: str, old_password: str, new_password: str) -> int:
