@@ -71,7 +71,7 @@ class Seller(db_conn.DBConn):
                 print(2)
                 return error.error_invalid_order_id(order_id)
             print(3)
-            row = self.Session.query(New_order).filter(order_id == order_id).first()
+            row = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
             print(4)
             if row is None:
                 return error.error_invalid_order_id(order_id)
@@ -84,10 +84,10 @@ class Seller(db_conn.DBConn):
                 print(7)
                 return error.error_already_delivered()
             print(8)
-            # row.state = 2
+            row.state = 2
             print(9)
             self.Session.commit()
-            row = self.Session.query(New_order).filter(order_id == order_id).first()
+            row = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
             print('已发货：', row.state)
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))

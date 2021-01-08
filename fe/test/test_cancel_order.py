@@ -40,6 +40,10 @@ class TestCancelOrder:
         assert code != 200
 
     def test_already_delivered(self):
+        code = self.buyer.add_funds(10000000)
+        assert code == 200
+        code = self.buyer.payment(self.order_id)
+        assert code == 200
         self.gen_book.seller.delivery_book(self.seller_id, self.order_id)
         code = self.buyer.cancel_order(self.buyer_id, self.order_id)
         assert code != 200

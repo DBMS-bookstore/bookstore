@@ -65,7 +65,7 @@ def delete_order(seconds):
             state = row.state
             create_time = row.create_time
             # 若超时且状态为未付款
-            if time.time()-create_time >= 60 and state == 0:
+            if time.time()-create_time >= 600 and state == 0:
                 # 增加库存
                 cur = Session.query(New_order_detail.book_id, New_order_detail.count).filter(New_order_detail.order_id == order_id)
                 for x in cur:

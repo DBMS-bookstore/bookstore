@@ -21,7 +21,7 @@ class User(base):
 # 书
 class Book(base):
     __tablename__ = 'book'
-    book_id = Column('book_id', Text, primary_key=True)
+    book_id = Column('id', Text, primary_key=True)
     title = Column('title', Text, nullable=False)
     author = Column('author', Text)
     publisher = Column('publisher', Text)
@@ -29,7 +29,7 @@ class Book(base):
     translator = Column('translator', Text)
     pub_year = Column('pub_year', Text)
     pages = Column('pages', Integer)
-    original_price = Column('original_price', Integer)
+    price = Column('price', Integer)
     currency_unit = Column('currency_unit', Text)
     binding = Column('binding', Text)
     isbn = Column('isbn', Text)
