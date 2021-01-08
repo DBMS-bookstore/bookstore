@@ -83,10 +83,10 @@ class Buyer(db_conn.DBConn):
                 return error.error_not_sufficient_funds(order_id)
             row2.balance -= total_price
             # 加钱的是卖家
-            row5 = self.Session.query(User).filter(User.user_id == seller_id).first()
-            if row5 is None:
-                return error.error_non_exist_user_id(seller_id)
-            row5.balance += total_price
+            # row5 = self.Session.query(User).filter(User.user_id == seller_id).first()
+            # if row5 is None:
+            #     return error.error_non_exist_user_id(seller_id)
+            # row5.balance += total_price
             # 修改订单状态
             row6 = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
             if row6 is None:
@@ -126,18 +126,78 @@ class Buyer(db_conn.DBConn):
             if row is None:
                 return error.error_non_exist_user_id(buyer_id)
             # 不存在该订单
-            row = self.Session.query(New_order).filter(New_order.order_id == order_id, New_order.user_id == buyer_id).first()
+            row = self.Session.query(New_order).filter(New_order.order_id == order_id,
+                                                       New_order.user_id == buyer_id).first()
+            # store_id = cursor.store_id
             print('可以')
             if row is None:
-                print(order_id)
+                # print(order_id)
                 return error.error_invalid_order_id(order_id)
             # 用户主动删除该订单
-            elif row.state == 2 or row.state == 3:
+            if row.state == 2 or row.state == 3:
                 return error.error_already_delivered()
-            self.Session.query(New_order).filter(New_order.order_id == order_id, New_order.user_id == buyer_id).delete()
-            self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).delete()
-            self.Session.commit()
-            return 200, "ok"
+            # 未付款，直接取消订单，加回库存
+            if row.state == 0 or row.state == 1:
+                cursor = self.Session.query(New_order).filter(New_order.order_id == order_id,
+                                                              New_order.user_id == buyer_id).first()
+                # cursor1 = self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).first()
+                # count = cursor.count
+                store_id = cursor.store_id
+                cursor1 = self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).all()
+                for each_row in cursor1:
+                    book_id = each_row.book_id
+                    count = each_row.count
+                    stock_level = self.Session.query(Store.stock_level).filter(Store.store_id == store_id,
+                                                                               Store.book_id == book_id).first()[0]
+                    stock_level += count
+                if row.state == 0:
+                    self.Session.query(New_order).filter(New_order.order_id == order_id,
+                                                         New_order.user_id == buyer_id).delete()
+                    self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).delete()
+                    self.Session.commit()
+                    return 200, "ok"
+                if row.state == 1:
+                    # 已付款,退款,加回库存
+                    cursor2 = self.Session.query(New_order_detail.book_id, New_order_detail.count, New_order_detail.price)\
+                        .filter(New_order_detail.order_id == order_id).all()
+                    total_price = 0
+                    for row4 in cursor2:
+                        count = row4[1]
+                        price = row4[2]
+                        total_price = total_price + price * count
+                    row5 = self.Session.query(User).filter(User.user_id == buyer_id).first()
+                    row5.balance += total_price
+
+                self.Session.query(New_order).filter(New_order.order_id == order_id,
+                                                     New_order.user_id == buyer_id).delete()
+                self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).delete()
+                self.Session.commit()
+                return 200, "ok"
+
+
+            # 加回库存
+            # cursor2 = self.Session.query(New_order).filter(New_order.order_id == order_id, New_order.user_id == buyer_id).all()
+            # store_id = cursor2.store_id
+            # for row in cursor2:
+            #     count = row.count
+            #     cursor1 = self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).all()
+            #     for each_row in cursor1:
+            #         book_id = each_row.book_id
+            #         stock_level = self.Session.query(Store.stock_level).filter(Store.store_id == store_id,
+            #                                                                    Store.book_id == book_id).first()[0]
+            #         stock_level += count
+
+            # 给买家加回钱
+
+            # 加回库存
+            # row2 = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
+            # row3 = self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).first()
+            # store_id = row2.store_id
+            # book_id = row3.book_id
+            # row4 = self.Session.query(Store).filter(Store.store_id == store_id,
+            #                                         Store.book_id == book_id).first()
+            # row4.stock_level = row4.stock_level + row3.count
+
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
@@ -173,12 +233,12 @@ class Buyer(db_conn.DBConn):
             if row is None:
                 return 518, "invalid order id.", order_detail_list
             else:
-                cursor = self.Session.query("SELECT new_order.order_id, user_id, store_id, state, book_id, count, price "
-                                           "from new_order, new_order_detail where new_order.order_id=? and "
-                                           "new_order.order_id = new_order_detail.order_id", (order_id,))
+                cursor = self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).all()
+                cursor1 = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
                 for row in cursor:
-                    detail = {"order_id": row[0], "user_id": row[1], "store_id": row[2],
-                              "state": row[3], "book_id": row[4], "count": row[5], "price": row[6]}
+                    detail = {"order_id": row.order_id, "book_id": row.book_id, "count": row.count,
+                              "price": row.price, "state": cursor1.state, "store_id": cursor1.store_id,
+                              "create_time": cursor1.create_time}
                     order_detail_list.append(detail)
             self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
@@ -196,12 +256,29 @@ class Buyer(db_conn.DBConn):
             if not self.order_id_exist(order_id):
                 return error.error_invalid_order_id(order_id)
             row = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
-            if row is None:
-                return error.error_invalid_order_id(order_id)
+            # if row is None:
+            #     return error.error_invalid_order_id(order_id)
             if row.state != 2:
                 return error.error_cannot_receive_book()
             row.state = 3
-            self.conn.commit()
+            cursor = self.Session.query(New_order_detail.book_id, New_order_detail.count,
+                                        New_order_detail.price).filter(New_order_detail.order_id == order_id).all()
+            total_price = 0
+            for row4 in cursor:
+                count = row4[1]
+                price = row4[2]
+                total_price = total_price + price * count
+            row1 = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
+            row3 = self.Session.query(User_store).filter(User_store.store_id == row1.store_id).first()
+            if row3 is None:
+                return error.error_non_exist_store_id(row1.store_id)
+
+            seller_id = row3.user_id
+            row5 = self.Session.query(User).filter(User.user_id == seller_id).first()
+            if row5 is None:
+                return error.error_non_exist_user_id(seller_id)
+            row5.balance += total_price
+            self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
