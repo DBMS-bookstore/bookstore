@@ -19,6 +19,7 @@ class TestLogin:
 
     def test_ok(self):
         code, token = self.auth.login(self.user_id, self.password, self.terminal)
+        print('token', token)
         assert code == 200
 
         code = self.auth.logout(self.user_id + "_x", token)

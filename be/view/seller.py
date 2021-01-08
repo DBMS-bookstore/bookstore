@@ -49,5 +49,4 @@ def seller_delivery_book():
 
     s = seller.Seller()
     code, message = s.delivery_book(user_id, order_id)
-
     return jsonify({"message": message}), code

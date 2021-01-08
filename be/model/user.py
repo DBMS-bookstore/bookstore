@@ -81,11 +81,11 @@ class User(db_conn.DBConn):
     def check_password(self, user_id: str, password: str) -> (int, str):
         row = self.Session.query(U.password).filter(U.user_id == user_id).first()
         if row is None:
-            print('没有该用户')
+            # print('没有该用户')
             return error.error_authorization_fail()
 
         if password != row[0]:
-            print('密码错误')
+            # print('密码错误')
             return error.error_authorization_fail()
 
         return 200, "ok"
@@ -93,18 +93,22 @@ class User(db_conn.DBConn):
     def login(self, user_id: str, password: str, terminal: str) -> (int, str, str):
         token = ""
         try:
+            print("tokenxxxxx")
             # 验证密码
             code, message = self.check_password(user_id, password)
             if code != 200:
+                print('xxxxxxxxxxxxxxxxxxx')
                 return code, message, ""
             # 生成token
             token = jwt_encode(user_id, terminal)
-            row = self.Session.query(U.token,U.terminal).filter(U.user_id==user_id).first()
+            row = self.Session.query(U).filter(U.user_id == user_id).first()
             if row is None:
                 return error.error_authorization_fail() + ("", )
-            row[0] == token
-            row[1] == terminal
+            row.token = token
+            row.terminal = terminal
             self.Session.commit()
+            row = self.Session.query(U).filter(U.user_id == user_id).first()
+            print('token:', row.token)
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e)), ""
         except BaseException as e:
@@ -116,15 +120,13 @@ class User(db_conn.DBConn):
             code, message = self.check_token(user_id, token)
             if code != 200:
                 return code, message
-
             terminal = "terminal_{}".format(str(time.time()))
             dummy_token = jwt_encode(user_id, terminal)
-
-            row = self.Session.query(U.token, U.terminal).filter(U.user_id == user_id).first()
+            row = self.Session.query(U).filter(U.user_id == user_id).first()
             if row is None:
                 return error.error_authorization_fail() + ("",)
-            row[0] == dummy_token
-            row[1] == terminal
+            row.token == dummy_token
+            row.terminal == terminal
             self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
@@ -158,12 +160,12 @@ class User(db_conn.DBConn):
 
             terminal = "terminal_{}".format(str(time.time()))
             token = jwt_encode(user_id, terminal)
-            row = self.Session.query(U.password, U.token, U.terminal).filter(U.user_id == user_id).first()
+            row = self.Session.query(U).filter(U.user_id == user_id).first()
             if row is None:
                 return error.error_authorization_fail()
-            row[0] = new_password
-            row[1] = token
-            row[2] = terminal
+            row.password = new_password
+            row.token = token
+            row.terminal = terminal
             self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))

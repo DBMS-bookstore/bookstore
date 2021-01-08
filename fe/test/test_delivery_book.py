@@ -17,7 +17,6 @@ class TestDeliveryBook:
         self.password = self.buyer_id
         self.total_price = 0
         self.buyer = register_new_buyer(self.buyer_id, self.password)
-
         self.gen_book = GenBook(self.seller_id, self.store_id)
         ok, buy_book_id_list = self.gen_book.gen(non_exist_book_id=False, low_stock_level=False)
         assert ok
@@ -31,10 +30,10 @@ class TestDeliveryBook:
                 self.total_price = self.total_price + book.price * num
         code, self.order_id = self.buyer.new_order(self.store_id, buy_book_id_list)
         assert code == 200
-
         yield
 
     def test_ok(self):
+        print('totalprice:', self.total_price)
         code = self.buyer.add_funds(self.total_price)
         assert code == 200
         code = self.buyer.payment(self.order_id)
@@ -56,6 +55,7 @@ class TestDeliveryBook:
 
         code = self.gen_book.seller.delivery_book(self.seller_id, self.order_id)
         assert code == 518
+
 
     def test_already_delivered(self):
         code = self.buyer.add_funds(self.total_price)
