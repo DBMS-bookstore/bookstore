@@ -22,17 +22,15 @@ class Buyer(db_conn.DBConn):
             uid = "{}_{}_{}".format(user_id, store_id, str(uuid.uuid1()))
             order_id = uid
             for book_id, count in id_and_count:
-                row = self.Session.query(Store.stock_level, Store.book_info).filter(Store.store_id==store_id,Store.book_id==book_id).first()
+                row = self.Session.query(Store).filter(Store.store_id==store_id,Store.book_id==book_id).first()
                 if row is None:
                     return error.error_non_exist_book_id(book_id) + (order_id, )
-                stock_level = row[0]
-                book_info = row[1]
-                book_info_json = json.loads(book_info)
+                book_info_json = json.loads(row.book_info)
                 price = book_info_json.get("price")
-                if stock_level < count:
+                if row.stock_level < count:
                     return error.error_stock_level_low(book_id) + (order_id,)
                 else:
-                    stock_level -= count
+                    row.stock_level -= count
                 new_order = New_order_detail(order_id=uid, book_id=book_id, count=count, price=price)
                 self.Session.add(new_order)
             # print('插入订单')
@@ -85,10 +83,10 @@ class Buyer(db_conn.DBConn):
                 return error.error_not_sufficient_funds(order_id)
             row2.balance -= total_price
             # 加钱的是卖家
-            row5 = self.Session.query(User).filter(User.user_id == seller_id).first()
-            if row5 is None:
-                return error.error_non_exist_user_id(seller_id)
-            row5.balance += total_price
+            # row5 = self.Session.query(User).filter(User.user_id == seller_id).first()
+            # if row5 is None:
+            #     return error.error_non_exist_user_id(seller_id)
+            # row5.balance += total_price
             # 修改订单状态
             row6 = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
             if row6 is None:
@@ -258,12 +256,29 @@ class Buyer(db_conn.DBConn):
             if not self.order_id_exist(order_id):
                 return error.error_invalid_order_id(order_id)
             row = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
-            if row is None:
-                return error.error_invalid_order_id(order_id)
+            # if row is None:
+            #     return error.error_invalid_order_id(order_id)
             if row.state != 2:
                 return error.error_cannot_receive_book()
             row.state = 3
-            self.conn.commit()
+            cursor = self.Session.query(New_order_detail.book_id, New_order_detail.count,
+                                        New_order_detail.price).filter(New_order_detail.order_id == order_id).all()
+            total_price = 0
+            for row4 in cursor:
+                count = row4[1]
+                price = row4[2]
+                total_price = total_price + price * count
+            row1 = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
+            row3 = self.Session.query(User_store).filter(User_store.store_id == row1.store_id).first()
+            if row3 is None:
+                return error.error_non_exist_store_id(row1.store_id)
+
+            seller_id = row3.user_id
+            row5 = self.Session.query(User).filter(User.user_id == seller_id).first()
+            if row5 is None:
+                return error.error_non_exist_user_id(seller_id)
+            row5.balance += total_price
+            self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
