@@ -55,7 +55,7 @@ class Store:
             Session.rollback()
 
     def get_db_conn(self) -> sqlite.Connection:
-        engine = create_engine('postgresql+psycopg2://postgres:123456@localhost/bookstore', encoding='utf-8', echo=True)
+        engine = create_engine('postgresql+psycopg2://postgres:123456@localhost:5433/bookstore', encoding='utf-8', echo=True)
         db_session_class = sessionmaker(bind=engine)  # db_session_class 仅仅是一个类
         Session = db_session_class()
         return Session

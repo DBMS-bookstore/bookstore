@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Text, TIMESTAMP, LargeBinary#区分大小写
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine('postgresql+psycopg2://postgres:xsh13766277896@localhost/bookstore',encoding='utf-8',echo=True)
+engine = create_engine('postgresql+psycopg2://postgres:123456@localhost:5433/bookstore',encoding='utf-8',echo=True)
 base = declarative_base()
 db_session_class = sessionmaker(bind=engine)    # db_session_class 仅仅是一个类
 Session = db_session_class()
@@ -64,7 +64,7 @@ class New_order(base):
     store_id = Column('store_id', Text)
     state = Column('state', Integer)
     create_time = Column('create_time', Integer)
-
+    delivery_time = Column('delivery_time', Integer)
 
 # 订单详情
 class New_order_detail(base):

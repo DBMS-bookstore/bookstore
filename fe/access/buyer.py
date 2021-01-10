@@ -61,6 +61,15 @@ class Buyer:
         response_json = r.json()
         return r.status_code, response_json.get("order_list")
 
+    def query_order_state(self, order_id):
+        json = {"order_id": order_id}
+        url = urljoin(self.url_prefix, "query_order_state")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        # print(r)
+        response_json = r.json()
+        return r.status_code, response_json.get("order_state")
+
     def query_detail_order(self, order_id):
         json = {"order_id": order_id}
         url = urljoin(self.url_prefix, "query_detail_order")
@@ -79,3 +88,6 @@ class Buyer:
         headers = {"token": self.token}
         r = requests.post(url, headers=headers, json=json)
         return r.status_code
+
+    # 全站搜索图书
+    # def search_book_all(self, query: str, first=0: int):
