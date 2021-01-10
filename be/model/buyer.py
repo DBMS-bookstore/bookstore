@@ -37,7 +37,7 @@ class Buyer(db_conn.DBConn):
                 self.Session.add(new_order)
             # print('插入订单')
             # 插入订单更新：添加两个属性
-            new_ord = New_order(order_id=uid, store_id=store_id, user_id=user_id, state=0, create_time=time.time())
+            new_ord = New_order(order_id=uid, store_id=store_id, user_id=user_id, state=0, create_time=time.time(), delivery_time=0 )
             self.Session.add(new_ord)
             self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
@@ -176,30 +176,6 @@ class Buyer(db_conn.DBConn):
                 self.Session.commit()
                 return 200, "ok"
 
-
-            # 加回库存
-            # cursor2 = self.Session.query(New_order).filter(New_order.order_id == order_id, New_order.user_id == buyer_id).all()
-            # store_id = cursor2.store_id
-            # for row in cursor2:
-            #     count = row.count
-            #     cursor1 = self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).all()
-            #     for each_row in cursor1:
-            #         book_id = each_row.book_id
-            #         stock_level = self.Session.query(Store.stock_level).filter(Store.store_id == store_id,
-            #                                                                    Store.book_id == book_id).first()[0]
-            #         stock_level += count
-
-            # 给买家加回钱
-
-            # 加回库存
-            # row2 = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
-            # row3 = self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).first()
-            # store_id = row2.store_id
-            # book_id = row3.book_id
-            # row4 = self.Session.query(Store).filter(Store.store_id == store_id,
-            #                                         Store.book_id == book_id).first()
-            # row4.stock_level = row4.stock_level + row3.count
-
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
@@ -216,7 +192,7 @@ class Buyer(db_conn.DBConn):
                 message = response[1]
                 return code, message, order_list
 
-            cursor = self.Session.query(New_order.order_id).filter(New_order.user_id == user_id)
+            cursor = self.Session.query(New_order.order_id, New_order.state).filter(New_order.user_id == user_id)
             if cursor.count() != 0:
                 for row in cursor:
                     order_list.append(row[0])
@@ -227,6 +203,16 @@ class Buyer(db_conn.DBConn):
             return 530, "{}".format(str(e))
         # print(order_list)
         return 200, "ok", order_list
+
+    def query_order_state(self, order_id):
+        try:
+            cursor = self.Session.query(New_order.state).filter(New_order.order_id == order_id).first()
+            order_state = cursor.state
+            return 200, "ok", order_state
+        except sqlalchemy.exc.IntegrityError as e:
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
 
     def query_detail_order(self, order_id):
         try:
@@ -286,4 +272,3 @@ class Buyer(db_conn.DBConn):
         except BaseException as e:
             return 530, "{}".format(str(e))
         return 200, "ok"
-

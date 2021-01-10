@@ -3,6 +3,7 @@ from be.model import error
 from be.model import db_conn
 from init_db.ConnectDB import Store, User_store, New_order
 import sqlalchemy
+import time
 
 class Seller(db_conn.DBConn):
 
@@ -86,6 +87,7 @@ class Seller(db_conn.DBConn):
             print(8)
             row.state = 2
             print(9)
+            row.delivery_time = time.time()
             self.Session.commit()
             row = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
             print('已发货：', row.state)
