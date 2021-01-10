@@ -1,9 +1,11 @@
+
 import json
 import logging
 import sqlalchemy
 import time
 import uuid
 from init_db.ConnectDB import Store, New_order, New_order_detail, User, User_store
+from init_db.init_search_table import Book_Onsale
 from be.model import db_conn
 from be.model import error
 
@@ -22,7 +24,7 @@ class Buyer(db_conn.DBConn):
             uid = "{}_{}_{}".format(user_id, store_id, str(uuid.uuid1()))
             order_id = uid
             for book_id, count in id_and_count:
-                row = self.Session.query(Store).filter(Store.store_id==store_id,Store.book_id==book_id).first()
+                row = self.Session.query(Store).filter(Store.store_id==store_id, Store.book_id==book_id).first()
                 if row is None:
                     return error.error_non_exist_book_id(book_id) + (order_id, )
                 book_info_json = json.loads(row.book_info)
@@ -35,7 +37,7 @@ class Buyer(db_conn.DBConn):
                 self.Session.add(new_order)
             # print('插入订单')
             # 插入订单更新：添加两个属性
-            new_ord = New_order(order_id=uid, store_id=store_id, user_id=user_id, state=0, create_time=time.time(), delivery_time=0 )
+            new_ord = New_order(order_id=uid, store_id=store_id, user_id=user_id, state=0, create_time=time.time(), delivery_time=0)
             self.Session.add(new_ord)
             self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
@@ -269,12 +271,292 @@ class Buyer(db_conn.DBConn):
             return 528, "{}".format(str(e))
         except BaseException as e:
             return 530, "{}".format(str(e))
-<<<<<<< HEAD
-        return 200, "ok"
-=======
+
         return 200, "ok"
 
-    # def search_book(self):
+    def search_book_all(self, query: str, first: int):
+        try:
+            page_size = 2
+            books = self.Session.execute("SELECT * FROM book_onsale where posting @@ to_tsquery('public.jiebacfg', '%s');" %query).fetchall()
+            if books is None:
+                return error.error_no_book()
+            book_list = []
+            # if books is None:
+            #     code, message = error.error_no_book()
+            #     return code, message, 0
+            # else:
+            print(books)
+            for book in books:
+                stock_level = self.Session.query(Store.stock_level).filter(Store.store_id == book.store_id,
+                                                                                Store.book_id == book.book_id).first()[0]
+                this_book = {
+                    'store_id': book.store_id,
+                    'book_id': book.book_id,
+                    'title': book.title,
+                    'price': book.price,
+                    'author': book.author,
+                    'tags': book.tags,
+                    'stock_level': stock_level
+                }
+                print('您要查找的书籍为：', this_book)
+                book_list.append(this_book)
+            pages = len(book_list)/page_size
+            self.Session.commit()
+        except sqlalchemy.exc.IntegrityError as e:
+            return 528, "{}".format(str(e)), 0, []
+        except BaseException as e:
+            return 530, "{}".format(str(e)), 0, []
+        # print(order_list)
+        return 200, "ok", pages, book_list[first-1:page_size-1]
+
+    def search_book_store(self, query: str, store_id: str, first: int):
+        try:
+            print('search')
+            if not self.store_id_exist(store_id):
+                code, message = error.error_non_exist_store_id(store_id)
+                return code, message, 0, []
+            page_size = 2
+            print('执行sql')
+            books = self.Session.execute("SELECT * FROM book_onsale where store_id='%s' and "
+                                         "posting @@ to_tsquery('public.jiebacfg', '%s');"% (store_id, query)).fetchall()
+            if books is None:
+                return error.error_no_book()
+            book_list = []
+            print(books)
+            for book in books:
+                stock_level = self.Session.query(Store.stock_level).filter(Store.store_id==book.store_id, Store.book_id==book.book_id).first()[0]
+                this_book = {
+                    # 'store_id': book.store_id,
+                    'book_id': book.book_id,
+                    'title': book.title,
+                    'price': book.price,
+                    'author': book.author,
+                    'tags':book.tags,
+                    'stock_level': stock_level
+                }
+                print('您要查找的书籍为：', this_book)
+                book_list.append(this_book)
+            pages = len(book_list)/page_size
+            self.Session.commit()
+        except sqlalchemy.exc.IntegrityError as e:
+            return 528, "{}".format(str(e)), 0, []
+        except BaseException as e:
+            print('错误：', e)
+            return 530, "{}".format(str(e)), 0, []
+        # print(order_list)
+        return 200, "ok", pages, book_list[first-1:page_size-1]
+
+    def search_book_all_tag(self, tag: str, first: int):
+        try:
+            page_size = 2
+            books = self.Session.query(Book_Onsale).filter(Book_Onsale.tags.like('%{tag}%'.format(tag=tag))).all()
+            if books is None:
+                return error.error_no_book()
+            book_list = []
+            # if books is None:
+            #     code, message = error.error_no_book()
+            #     return code, message, 0
+            # else:
+            print(books)
+            for book in books:
+                stock_level = self.Session.query(Store.stock_level).filter(Store.store_id == book.store_id,
+                                                                                Store.book_id == book.book_id).first()[0]
+                this_book = {
+                    'store_id': book.store_id,
+                    'book_id': book.book_id,
+                    'title': book.title,
+                    'price': book.price,
+                    'author': book.author,
+                    'tags': book.tags,
+                    'stock_level': stock_level
+                }
+                print('您要查找的书籍为：', this_book)
+                book_list.append(this_book)
+            pages = len(book_list)/page_size
+            self.Session.commit()
+        except sqlalchemy.exc.IntegrityError as e:
+            return 528, "{}".format(str(e)), 0, []
+        except BaseException as e:
+            return 530, "{}".format(str(e)), 0, []
+        # print(order_list)
+        return 200, "ok", pages, book_list[first-1:page_size-1]
+
+    def search_book_store_tag(self, tag: str, store_id: str, first: int):
+        try:
+            print('search')
+            if not self.store_id_exist(store_id):
+                code, message = error.error_non_exist_store_id(store_id)
+                return code, message, 0, []
+            page_size = 2
+            print('执行sql')
+            books = self.Session.query(Book_Onsale).filter(Book_Onsale.store_id==store_id, Book_Onsale.tags.like('%{tag}%'.format(tag=tag))).all()
+            if books is None:
+                return error.error_no_book()
+            book_list = []
+            print(books)
+            for book in books:
+                stock_level = self.Session.query(Store.stock_level).filter(Store.store_id==book.store_id, Store.book_id==book.book_id).first()[0]
+                this_book = {
+                    # 'store_id': book.store_id,
+                    'book_id': book.book_id,
+                    'title': book.title,
+                    'price': book.price,
+                    'author': book.author,
+                    'tags':book.tags,
+                    'stock_level': stock_level
+                }
+                print('您要查找的书籍为：', this_book)
+                book_list.append(this_book)
+            pages = len(book_list)/page_size
+            self.Session.commit()
+        except sqlalchemy.exc.IntegrityError as e:
+            return 528, "{}".format(str(e)), 0, []
+        except BaseException as e:
+            print('错误：', e)
+            return 530, "{}".format(str(e)), 0, []
+        # print(order_list)
+        return 200, "ok", pages, book_list[first-1:page_size-1]
+
+    def search_book_all_title(self, title: str, first: int):
+        try:
+            page_size = 2
+            books = self.Session.query(Book_Onsale).filter(Book_Onsale.title.like('%{title}%'.format(title=title))).all()
+            if books is None:
+                return error.error_no_book()
+            book_list = []
+            # if books is None:
+            #     code, message = error.error_no_book()
+            #     return code, message, 0
+            # else:
+            print(books)
+            for book in books:
+                stock_level = self.Session.query(Store.stock_level).filter(Store.store_id == book.store_id,
+                                                                                Store.book_id == book.book_id).first()[0]
+                this_book = {
+                    'store_id': book.store_id,
+                    'book_id': book.book_id,
+                    'title': book.title,
+                    'price': book.price,
+                    'author': book.author,
+                    'tags': book.tags,
+                    'stock_level': stock_level
+                }
+                print('您要查找的书籍为：', this_book)
+                book_list.append(this_book)
+            pages = len(book_list)/page_size
+            self.Session.commit()
+        except sqlalchemy.exc.IntegrityError as e:
+            return 528, "{}".format(str(e)), 0, []
+        except BaseException as e:
+            return 530, "{}".format(str(e)), 0, []
+        # print(order_list)
+        return 200, "ok", pages, book_list[first-1:page_size-1]
+
+    def search_book_store_title(self, title: str, store_id: str, first: int):
+        try:
+            print('search')
+            if not self.store_id_exist(store_id):
+                code, message = error.error_non_exist_store_id(store_id)
+                return code, message, 0, []
+            page_size = 2
+            print('执行sql')
+            books = self.Session.query(Book_Onsale).filter(Book_Onsale.store_id==store_id, Book_Onsale.title.like('%{title}%'.format(title=title))).all()
+            if books is None:
+                return error.error_no_book()
+            book_list = []
+            print(books)
+            for book in books:
+                stock_level = self.Session.query(Store.stock_level).filter(Store.store_id==book.store_id, Store.book_id==book.book_id).first()[0]
+                this_book = {
+                    # 'store_id': book.store_id,
+                    'book_id': book.book_id,
+                    'title': book.title,
+                    'price': book.price,
+                    'author': book.author,
+                    'tags':book.tags,
+                    'stock_level': stock_level
+                }
+                print('您要查找的书籍为：', this_book)
+                book_list.append(this_book)
+            pages = len(book_list)/page_size
+            self.Session.commit()
+        except sqlalchemy.exc.IntegrityError as e:
+            return 528, "{}".format(str(e)), 0, []
+        except BaseException as e:
+            print('错误：', e)
+            return 530, "{}".format(str(e)), 0, []
+        # print(order_list)
+        return 200, "ok", pages, book_list[first-1:page_size-1]
+
+    def search_book_all_author(self, author: str, first: int):
+        try:
+            page_size = 2
+            books = self.Session.query(Book_Onsale).filter(Book_Onsale.author.like('%{author}%'.format(author=author))).all()
+            if books is None:
+                return error.error_no_book()
+            book_list = []
+            # if books is None:
+            #     code, message = error.error_no_book()
+            #     return code, message, 0
+            # else:
+            print(books)
+            for book in books:
+                stock_level = self.Session.query(Store.stock_level).filter(Store.store_id == book.store_id,
+                                                                                Store.book_id == book.book_id).first()[0]
+                this_book = {
+                    'store_id': book.store_id,
+                    'book_id': book.book_id,
+                    'title': book.title,
+                    'price': book.price,
+                    'author': book.author,
+                    'tags': book.tags,
+                    'stock_level': stock_level
+                }
+                print('您要查找的书籍为：', this_book)
+                book_list.append(this_book)
+            pages = len(book_list)/page_size
+            self.Session.commit()
+        except sqlalchemy.exc.IntegrityError as e:
+            return 528, "{}".format(str(e)), 0, []
+        except BaseException as e:
+            return 530, "{}".format(str(e)), 0, []
+        # print(order_list)
+        return 200, "ok", pages, book_list[first-1:page_size-1]
+
+    def search_book_store_author(self, author: str, store_id: str, first: int):
+        try:
+            print('search')
+            if not self.store_id_exist(store_id):
+                code, message = error.error_non_exist_store_id(store_id)
+                return code, message, 0, []
+            page_size = 2
+            print('执行sql')
+            books = self.Session.query(Book_Onsale).filter(Book_Onsale.store_id==store_id, Book_Onsale.author.like('%{author}%'.format(author=author))).all()
+            if books is None:
+                return error.error_no_book()
+            book_list = []
+            print(books)
+            for book in books:
+                stock_level = self.Session.query(Store.stock_level).filter(Store.store_id==book.store_id, Store.book_id==book.book_id).first()[0]
+                this_book = {
+                    # 'store_id': book.store_id,
+                    'book_id': book.book_id,
+                    'title': book.title,
+                    'price': book.price,
+                    'author': book.author,
+                    'tags':book.tags,
+                    'stock_level': stock_level
+                }
+                print('您要查找的书籍为：', this_book)
+                book_list.append(this_book)
+            pages = len(book_list)/page_size
+            self.Session.commit()
+        except sqlalchemy.exc.IntegrityError as e:
+            return 528, "{}".format(str(e)), 0, []
+        except BaseException as e:
+            print('错误：', e)
+            return 530, "{}".format(str(e)), 0, []
+        # print(order_list)
+        return 200, "ok", pages, book_list[first-1:page_size-1]
 
 
->>>>>>> 6725169bef05400ad9bf36c4512601a6d0c88ea8

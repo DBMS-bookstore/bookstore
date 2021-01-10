@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 import json
 import time
 from be.model import error
@@ -26,12 +26,16 @@ class Seller(db_conn.DBConn):
             this_book = self.Session.query(Book).filter(Book.book_id==book_id).first()
             # print('title长这样:', this_book.title)
             # print('书长这样：', this_book.picture)
+            if this_book.book_intro:
+                this_book.book_intro = str(this_book.book_intro)
+            if this_book.content:
+                this_book.content = str(this_book.book_intro)
+            # self.Session.execute("INSERT INTO book_onsale "
+            #                      "VALUES('%s','%s','%s','%s','%s',%d,'%s','%s','%s')"
+            #                      %(store_id, book_id, this_book.title, this_book.author,this_book.translator, this_book.price,this_book.book_intro,this_book.content,this_book.tags))
             book_onsale_obj = Book_Onsale(store_id=store_id, book_id=book_id, title=this_book.title, author=this_book.author,
-                                          publisher=this_book.publisher, translator=this_book.translator,
-                                          pub_year=this_book.pub_year, pages=this_book.pages, price=this_book.price,
-                                          binding=this_book.binding, isbn=this_book.isbn, author_intro=this_book.author_intro,
-                                          book_intro=this_book.book_intro, content=this_book.content, tags=this_book.tags,
-                                          picture=this_book.picture)
+                                          translator=this_book.translator, price=this_book.price,
+                                          book_intro=this_book.book_intro, content=this_book.content, tags=this_book.tags)
             self.Session.add(book_onsale_obj)
             # self.Session.execute("INSERT into store(store_id, book_id, book_info, stock_level)"
             #                   "VALUES (?, ?, ?, ?)", (store_id, book_id, book_json_str, stock_level))

@@ -89,5 +89,102 @@ class Buyer:
         r = requests.post(url, headers=headers, json=json)
         return r.status_code
 
-    # 全站搜索图书
-    # def search_book_all(self, query: str, first=0: int):
+    # 全站搜索图书，默认搜索第一个
+    def search_book_all(self, query: str, first:int = 1):
+        json = {
+            "query": query,
+            "first": first
+        }
+        url = urljoin(self.url_prefix, "search_book_all")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        response_json = r.json()
+        return r.status_code, response_json.get("pages"), response_json.get("book_list")
+
+    # 店铺搜索
+    def search_book_store(self, query: str, store_id: str, first: int = 1):
+        json = {
+            "query": query,
+            "store_id": store_id,
+            "first": first
+        }
+        url = urljoin(self.url_prefix, "search_book_store")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        response_json = r.json()
+        return r.status_code, response_json.get("pages"), response_json.get("book_list")
+
+    # 全站搜索图书，默认搜索第一个
+    def search_book_all_tag(self, tag: str, first: int = 1):
+        json = {
+            "tag": tag,
+            "first": first
+        }
+        url = urljoin(self.url_prefix, "search_book_all_tag")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        response_json = r.json()
+        return r.status_code, response_json.get("pages"), response_json.get("book_list")
+
+    # 店铺搜索
+    def search_book_store_tag(self, tag: str, store_id: str, first: int = 1):
+        json = {
+            "tag": tag,
+            "store_id": store_id,
+            "first": first
+        }
+        url = urljoin(self.url_prefix, "search_book_store_tag")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        response_json = r.json()
+        return r.status_code, response_json.get("pages"), response_json.get("book_list")
+
+    # 全站搜索图书，默认搜索第一个
+    def search_book_all_title(self, title: str, first: int = 1):
+        json = {
+            "title": title,
+            "first": first
+        }
+        url = urljoin(self.url_prefix, "search_book_all_title")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        response_json = r.json()
+        return r.status_code, response_json.get("pages"), response_json.get("book_list")
+
+    # 店铺搜索
+    def search_book_store_title(self, title: str, store_id: str, first: int = 1):
+        json = {
+                "title": title,
+                "store_id": store_id,
+                "first": first
+            }
+        url = urljoin(self.url_prefix, "search_book_store_title")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        response_json = r.json()
+        return r.status_code, response_json.get("pages"), response_json.get("book_list")
+
+    # 全站搜索图书，默认搜索第一个
+    def search_book_all_author(self, author: str, first: int = 1):
+        json = {
+                "author": author,
+                "first": first
+            }
+        url = urljoin(self.url_prefix, "search_book_all_author")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        response_json = r.json()
+        return r.status_code, response_json.get("pages"), response_json.get("book_list")
+
+    # 店铺搜索
+    def search_book_store_author(self, author: str, store_id: str, first: int = 1):
+        json = {
+                "author": author,
+                "store_id": store_id,
+                "first": first
+                }
+        url = urljoin(self.url_prefix, "search_book_store_author")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        response_json = r.json()
+        return r.status_code, response_json.get("pages"), response_json.get("book_list")

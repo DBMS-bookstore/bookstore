@@ -12,7 +12,7 @@ error_code = {
     520: "already delivered or take delivery",
     521: "no payment to deliver",
     522: "can not receive book",
-    523: "",
+    523: "non exit relative book",
     524: "",
     525: "",
     526: "",
@@ -75,3 +75,6 @@ def error_no_payment_to_deliver():
 
 def error_cannot_receive_book():
     return 522, error_code[522]
+
+def error_no_book():
+    return 523, error_code[523], 0, []
