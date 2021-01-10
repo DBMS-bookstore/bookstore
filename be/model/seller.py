@@ -1,7 +1,8 @@
-import sqlite3 as sqlite
+import json
 from be.model import error
 from be.model import db_conn
-from init_db.ConnectDB import Store, User_store, New_order
+from init_db.ConnectDB import Store, User_store, New_order, Book
+from init_db.init_search_table import Book_Onsale
 import sqlalchemy
 
 class Seller(db_conn.DBConn):
@@ -17,14 +18,25 @@ class Seller(db_conn.DBConn):
                 return error.error_non_exist_store_id(store_id)
             if self.book_id_exist(store_id, book_id):
                 return error.error_exist_book_id(book_id)
-            obj = Store(store_id=store_id, book_id=book_id, book_info=book_json_str,stock_level=stock_level)
+            obj = Store(store_id=store_id, book_id=book_id, book_info=book_json_str, stock_level=stock_level)
             self.Session.add(obj)
+            this_book = self.Session.query(Book).filter(Book.book_id==book_id).first()
+            # print('title长这样:', this_book.title)
+            # print('书长这样：', this_book.picture)
+            book_onsale_obj = Book_Onsale(store_id=store_id, book_id=book_id, title=this_book.title, author=this_book.author,
+                                          publisher=this_book.publisher, translator=this_book.translator,
+                                          pub_year=this_book.pub_year, pages=this_book.pages, price=this_book.price,
+                                          binding=this_book.binding, isbn=this_book.isbn, author_intro=this_book.author_intro,
+                                          book_intro=this_book.book_intro, content=this_book.content, tags=this_book.tags,
+                                          picture=this_book.picture)
+            self.Session.add(book_onsale_obj)
             # self.Session.execute("INSERT into store(store_id, book_id, book_info, stock_level)"
             #                   "VALUES (?, ?, ?, ?)", (store_id, book_id, book_json_str, stock_level))
             self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
+            print('加书出错:', e)
             return 530, "{}".format(str(e))
         return 200, "ok"
 

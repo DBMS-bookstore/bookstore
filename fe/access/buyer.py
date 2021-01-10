@@ -79,3 +79,6 @@ class Buyer:
         headers = {"token": self.token}
         r = requests.post(url, headers=headers, json=json)
         return r.status_code
+
+    # 全站搜索图书
+    # def search_book_all(self, query: str, first=0: int):

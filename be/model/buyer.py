@@ -285,3 +285,6 @@ class Buyer(db_conn.DBConn):
             return 530, "{}".format(str(e))
         return 200, "ok"
 
+    # def search_book(self):
+
+
