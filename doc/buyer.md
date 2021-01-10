@@ -142,3 +142,163 @@ Status Code:
 200 | 充值成功
 401 | 授权失败
 5XX | 无效参数
+
+## 买家主动取消订单
+
+#### URL：
+
+POST http://[address]/buyer/cancel_order
+
+#### Request
+
+##### **Body：**
+
+```
+{
+  "user_id": "user_id",
+  “order_id": "order_id",
+}
+```
+
+##### 属性说明：
+
+| Key      | 类型   | 描述       | 是否可为空 |
+| -------- | ------ | ---------- | ---------- |
+| user_id  | string | 买家用户id | N          |
+| order_id | string | 订单id     | N          |
+
+Status Code:
+
+| 码             | 描述             |
+| -------------- | ---------------- |
+| 200            | 取消订单成功     |
+| 520            | 订单已发货或收货 |
+| 5XX（除去520） | 无效参数         |
+
+## 买家查看订单（粗粒度，只返回买家订单号列表）
+
+#### URL：
+
+POST http://[address]/buyer/query_order
+
+#### Request
+
+**Body：**
+
+```
+{
+    "order_id": order_id
+}
+```
+
+##### 属性说明：
+
+| Key      | 类型   | 描述   | 是否可为空 |
+| -------- | ------ | ------ | ---------- |
+| order_id | string | 订单id | N          |
+
+Status Code:
+
+| 码   | 描述         |
+| ---- | ------------ |
+| 200  | 查看订单成功 |
+| 401  | 授权失败     |
+| 5XX  | 无效参数     |
+
+## 买家查看订单状态（根据订单号返回当前订单状态）
+
+#### URL：
+
+POST http://[address]/buyer/query_order_state
+
+#### Request
+
+**Body：**
+
+```
+{
+    "order_id": order_id
+}
+```
+
+##### 属性说明：
+
+| Key      | 类型   | 描述   | 是否可为空 |
+| -------- | ------ | ------ | ---------- |
+| order_id | string | 订单id | N          |
+
+Status Code:
+
+| 码   | 描述             |
+| ---- | ---------------- |
+| 200  | 查看订单状态成功 |
+| 5XX  | 无效参数         |
+
+## 买家查看订单状态（粗粒度，包括所有订单信息）
+
+#### URL：
+
+POST http://[address]/buyer/query_order_detail
+
+#### Request
+
+**Body：**
+
+```
+{
+    "order_id": order_id
+}
+```
+
+##### 属性说明：
+
+| Key      | 类型   | 描述   | 是否可为空 |
+| -------- | ------ | ------ | ---------- |
+| order_id | string | 订单id | N          |
+
+Status Code:
+
+| 码   | 描述             |
+| ---- | ---------------- |
+| 200  | 查看订单状态成功 |
+| 5XX  | 无效参数         |
+
+##### 查询包括的信息：
+
+```
+detail = {"order_id": row.order_id, "book_id": row.book_id, "count": row.count,
+          "price": row.price, "state": cursor1.state, "store_id": cursor1.store_id,
+          "create_time": cursor1.create_time}
+```
+
+## 买家确认收货
+
+#### URL：
+
+POST http://[address]/buyer/receive_book
+
+#### Request
+
+**Body：**
+
+```
+{
+	"user_id": user_id
+    "order_id": order_id
+}
+```
+
+##### 属性说明：
+
+| Key      | 类型   | 描述       | 是否可为空 |
+| -------- | ------ | ---------- | ---------- |
+| user_id  | string | 买家用户id | N          |
+| order_id | string | 订单id     | N          |
+
+Status Code:
+
+| 码   | 描述                   |
+| ---- | ---------------------- |
+| 200  | 买家确认收货成功       |
+| 522  | 还没发货，无法确认收货 |
+| 5XX  | 无效参数               |

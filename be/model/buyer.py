@@ -176,30 +176,6 @@ class Buyer(db_conn.DBConn):
                 self.Session.commit()
                 return 200, "ok"
 
-
-            # 加回库存
-            # cursor2 = self.Session.query(New_order).filter(New_order.order_id == order_id, New_order.user_id == buyer_id).all()
-            # store_id = cursor2.store_id
-            # for row in cursor2:
-            #     count = row.count
-            #     cursor1 = self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).all()
-            #     for each_row in cursor1:
-            #         book_id = each_row.book_id
-            #         stock_level = self.Session.query(Store.stock_level).filter(Store.store_id == store_id,
-            #                                                                    Store.book_id == book_id).first()[0]
-            #         stock_level += count
-
-            # 给买家加回钱
-
-            # 加回库存
-            # row2 = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
-            # row3 = self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).first()
-            # store_id = row2.store_id
-            # book_id = row3.book_id
-            # row4 = self.Session.query(Store).filter(Store.store_id == store_id,
-            #                                         Store.book_id == book_id).first()
-            # row4.stock_level = row4.stock_level + row3.count
-
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
@@ -216,7 +192,7 @@ class Buyer(db_conn.DBConn):
                 message = response[1]
                 return code, message, order_list
 
-            cursor = self.Session.query(New_order.order_id).filter(New_order.user_id == user_id)
+            cursor = self.Session.query(New_order.order_id, New_order.state).filter(New_order.user_id == user_id)
             if cursor.count() != 0:
                 for row in cursor:
                     order_list.append(row[0])
@@ -295,6 +271,7 @@ class Buyer(db_conn.DBConn):
             return 528, "{}".format(str(e))
         except BaseException as e:
             return 530, "{}".format(str(e))
+
         return 200, "ok"
 
     def search_book_all(self, query: str, first: int):
@@ -581,7 +558,5 @@ class Buyer(db_conn.DBConn):
             return 530, "{}".format(str(e)), 0, []
         # print(order_list)
         return 200, "ok", pages, book_list[first-1:page_size-1]
-
-
 
 

@@ -3,6 +3,7 @@ import os
 from flask import Flask
 from flask import Blueprint
 from flask import request
+
 from be.view import auth
 from be.view import seller
 from be.view import buyer
@@ -12,6 +13,9 @@ from threading import Timer
 from be.model import store
 from be.model import error
 from init_db.ConnectDB import Session, New_order, New_order_detail, Store, User_store, User
+from be.view.buyer import receive_book
+
+
 bp_shutdown = Blueprint("shutdown", __name__)
 
 
