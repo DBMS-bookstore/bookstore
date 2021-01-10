@@ -6,6 +6,7 @@ from be.model import db_conn
 from init_db.ConnectDB import Store, User_store, New_order, Book
 from init_db.init_search_table import Book_Onsale
 import sqlalchemy
+import time
 
 class Seller(db_conn.DBConn):
 

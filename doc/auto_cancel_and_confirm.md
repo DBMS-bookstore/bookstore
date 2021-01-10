@@ -1,59 +1,16 @@
-import logging
-import os
-from flask import Flask
-from flask import Blueprint
-from flask import request
+## 系统自动取消订单
 
-from be.view import auth
-from be.view import seller
-from be.view import buyer
-# from be.model.store import init_database
-import time
-from threading import Timer
-from be.model import store
-from be.model import error
-from be.view.buyer import receive_book
-from init_db.ConnectDB import Session, New_order, New_order_detail, Store, User_store, User
-
-bp_shutdown = Blueprint("shutdown", __name__)
+在be.model.serve函数的delete_order中不断轮询，遍历所有订单，判断下单时间是否超时，若超时且状态为未付款，则增加库存，并且从new_order和new_order_detail中删除和该订单有关信息。
 
 
-def shutdown_server():
-    func = request.environ.get("werkzeug.server.shutdown")
-    if func is None:
-        raise RuntimeError("Not running with the Werkzeug Server")
-    func()
+
+## 系统自动确认收货
+
+在be.model.serve函数的delete_order中不断轮询，遍历所有订单，判断发货时间是否超过一定时限，如果超过且状态为发货，则将状态改为3（收货），将订单总金额加到卖家的balance中。
 
 
-@bp_shutdown.route("/shutdown")
-def be_shutdown():
-    shutdown_server()
-    return "Server shutting down..."
 
-
-def be_run():
-    this_path = os.path.dirname(__file__)
-    parent_path = os.path.dirname(this_path)
-    log_file = os.path.join(parent_path, "app.log")
-    # init_database()
-
-    logging.basicConfig(filename=log_file, level=logging.ERROR)
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        "%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s"
-    )
-    handler.setFormatter(formatter)
-    logging.getLogger().addHandler(handler)
-
-    app = Flask(__name__)
-    app.register_blueprint(bp_shutdown)
-    app.register_blueprint(auth.bp_auth)
-    app.register_blueprint(seller.bp_seller)
-    app.register_blueprint(buyer.bp_buyer)
-    delete_order(10)
-    app.run(use_reloader=False)
-
-
+```
 def delete_order(seconds):
     # Session = store.get_db_conn()
     cursor = Session.query(New_order).all()
@@ -101,3 +58,4 @@ def delete_order(seconds):
         Session.commit()
     t = Timer(seconds, delete_order, (seconds,))
     t.start()
+```
