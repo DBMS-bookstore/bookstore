@@ -56,7 +56,6 @@ class User(db_conn.DBConn):
 
     def register(self, user_id: str, password: str):
         try:
-            print('register')
             terminal = "terminal_{}".format(str(time.time()))
             token = jwt_encode(user_id, terminal)
             user_obj = U(user_id=user_id, password=password, balance=0, token=token, terminal=terminal)
@@ -66,7 +65,6 @@ class User(db_conn.DBConn):
             #     )
             self.Session.commit()
         except sqlalchemy.exc.IntegrityError:
-            print('有错')
             # 已存在user_id
             return error.error_exist_user_id(user_id)
         return 200, "ok"

@@ -60,14 +60,12 @@ def query_order():
     # print(order_list)
     return jsonify({"message": message, 'order_list': order_list}), code
 
-
 @bp_buyer.route("/query_order_state", methods=["GET", "POST"])
 def query_order_state():
     order_id = request.json.get("order_id")
     b = Buyer()
     code, message, order_state = b.query_order_state(order_id)
     return jsonify({"message": message, 'order_state': order_state}), code
-
 
 @bp_buyer.route("/query_detail_order", methods=["GET", "POST"])
 def query_detail_order():
@@ -86,79 +84,3 @@ def receive_book():
     code, message = b.receive_book(user_id, order_id)
 
     return jsonify({"message": message}), code
-
-
-@bp_buyer.route("/search_book_all", methods=["POST", "GET"])
-def search_book_all():
-    query: str = request.json.get("query")
-    first: int = request.json.get("first")
-    b = Buyer()
-    code, message, pages, book_list = b.search_book_all(query, first)
-    return jsonify({"message": message, "pages": pages, "book_list": book_list}), code
-
-
-@bp_buyer.route("/search_book_store", methods=["POST", "GET"])
-def search_book_store():
-    query: str = request.json.get("query")
-    store_id: str = request.json.get("store_id")
-    first: int = request.json.get("first")
-    b = Buyer()
-    code, message, pages, book_list = b.search_book_store(query, store_id, first)
-    return jsonify({"message": message, "pages": pages, "book_list": book_list}), code
-
-
-@bp_buyer.route("/search_book_all_author", methods=["POST", "GET"])
-def search_book_all_author():
-    author: str = request.json.get("author")
-    first: int = request.json.get("first")
-    b = Buyer()
-    code, message, pages, book_list = b.search_book_all_author(author, first)
-    return jsonify({"message": message, "pages": pages, "book_list": book_list}), code
-
-
-@bp_buyer.route("/search_book_store_author", methods=["POST", "GET"])
-def search_book_store_author():
-    author: str = request.json.get("author")
-    store_id: str = request.json.get("store_id")
-    first: int = request.json.get("first")
-    b = Buyer()
-    code, message, pages, book_list = b.search_book_store_author(author, store_id, first)
-    return jsonify({"message": message, "pages": pages, "book_list": book_list}), code
-
-
-@bp_buyer.route("/search_book_all_tag", methods=["POST", "GET"])
-def search_book_all_tag():
-    tag: str = request.json.get("tag")
-    first: int = request.json.get("first")
-    b = Buyer()
-    code, message, pages, book_list = b.search_book_all_tag(tag, first)
-    return jsonify({"message": message, "pages": pages, "book_list": book_list}), code
-
-
-@bp_buyer.route("/search_book_store_tag", methods=["POST", "GET"])
-def search_book_store_tag():
-    tag: str = request.json.get("tag")
-    store_id: str = request.json.get("store_id")
-    first: int = request.json.get("first")
-    b = Buyer()
-    code, message, pages, book_list = b.search_book_store_tag(tag, store_id, first)
-    return jsonify({"message": message, "pages": pages, "book_list": book_list}), code
-
-
-@bp_buyer.route("/search_book_all_title", methods=["POST", "GET"])
-def search_book_all_title():
-    title: str = request.json.get("title")
-    first: int = request.json.get("first")
-    b = Buyer()
-    code, message, pages, book_list = b.search_book_all_title(title, first)
-    return jsonify({"message": message, "pages": pages, "book_list": book_list}), code
-
-
-@bp_buyer.route("/search_book_store_title", methods=["POST", "GET"])
-def search_book_store_title():
-    title: str = request.json.get("title")
-    store_id: str = request.json.get("store_id")
-    first: int = request.json.get("first")
-    b = Buyer()
-    code, message, pages, book_list = b.search_book_store_title(title, store_id, first)
-    return jsonify({"message": message, "pages": pages, "book_list": book_list}), code
