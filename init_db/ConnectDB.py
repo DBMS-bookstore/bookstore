@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Text, TIMESTAMP, LargeBinary#区分大小写
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine('postgresql+psycopg2://postgres:xsh13766277896@localhost/bookstore',encoding='utf-8',echo=True)
+engine = create_engine('postgresql+psycopg2://postgres:123456@localhost:5433/bookstore',encoding='utf-8',echo=True)
 base = declarative_base()
 db_session_class = sessionmaker(bind=engine)    # db_session_class 仅仅是一个类
 Session = db_session_class()
@@ -21,7 +21,7 @@ class User(base):
 # 书
 class Book(base):
     __tablename__ = 'book'
-    book_id = Column('book_id', Text, primary_key=True)
+    book_id = Column('id', Text, primary_key=True)
     title = Column('title', Text, nullable=False)
     author = Column('author', Text)
     publisher = Column('publisher', Text)
@@ -29,7 +29,7 @@ class Book(base):
     translator = Column('translator', Text)
     pub_year = Column('pub_year', Text)
     pages = Column('pages', Integer)
-    original_price = Column('original_price', Integer)
+    price = Column('price', Integer)
     currency_unit = Column('currency_unit', Text)
     binding = Column('binding', Text)
     isbn = Column('isbn', Text)
