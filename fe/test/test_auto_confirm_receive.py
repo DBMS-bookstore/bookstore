@@ -43,7 +43,7 @@ class TestAutoReceive:
         assert code == 200
         # self.buyer.receive_book(self.buyer_id, self.order_id)
         # assert code == 200
-        time.sleep(20)
+        time.sleep(70)
         # 然后去查询订单,订单状态为已收货
         code, order_state = self.buyer.query_order_state(self.order_id)
         assert order_state == 3
