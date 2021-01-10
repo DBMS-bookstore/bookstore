@@ -226,6 +226,16 @@ class Buyer(db_conn.DBConn):
         # print(order_list)
         return 200, "ok", order_list
 
+    def query_order_state(self, order_id):
+        try:
+            cursor = self.Session.query(New_order.state).filter(New_order.order_id == order_id).first()
+            order_state = cursor.state
+            return 200, "ok", order_state
+        except sqlalchemy.exc.IntegrityError as e:
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
+
     def query_detail_order(self, order_id):
         try:
             row = self.Session.query(New_order.order_id).filter(New_order.order_id == order_id).first()

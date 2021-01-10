@@ -64,7 +64,7 @@ class New_order(base):
     store_id = Column('store_id', Text)
     state = Column('state', Integer)
     create_time = Column('create_time', Integer)
-
+    delivery_time = Column('delivery_time', Integer)
 
 # 订单详情
 class New_order_detail(base):
