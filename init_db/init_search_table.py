@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Text, LargeBinary#区分大小写
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine('postgresql+psycopg2://postgres:123456@localhost:5433/bookstore', encoding='utf-8', echo=True)
+engine = create_engine('postgresql+psycopg2://postgres:zke20001231@localhost:5432/bookstore', encoding='utf-8', echo=True)
 base = declarative_base()
 db_session_class = sessionmaker(bind=engine)    # db_session_class 仅仅是一个类
 Session = db_session_class()

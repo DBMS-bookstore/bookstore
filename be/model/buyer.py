@@ -153,9 +153,10 @@ class Buyer(db_conn.DBConn):
                                                                                Store.book_id == book_id).first()[0]
                     stock_level += count
                 if row.state == 0:
-                    self.Session.query(New_order).filter(New_order.order_id == order_id,
-                                                         New_order.user_id == buyer_id).delete()
-                    self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).delete()
+                    #self.Session.query(New_order).filter(New_order.order_id == order_id,
+                                                         #New_order.user_id == buyer_id).delete()
+                    #self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).delete()
+                    row.state = -1
                     self.Session.commit()
                     return 200, "ok"
                 if row.state == 1:
@@ -170,9 +171,10 @@ class Buyer(db_conn.DBConn):
                     row5 = self.Session.query(User).filter(User.user_id == buyer_id).first()
                     row5.balance += total_price
 
-                self.Session.query(New_order).filter(New_order.order_id == order_id,
-                                                     New_order.user_id == buyer_id).delete()
-                self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).delete()
+                #self.Session.query(New_order).filter(New_order.order_id == order_id,
+                                                     #New_order.user_id == buyer_id).delete()
+                #self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).delete()
+                row.state = -1
                 self.Session.commit()
                 return 200, "ok"
 
@@ -193,6 +195,31 @@ class Buyer(db_conn.DBConn):
                 return code, message, order_list
 
             cursor = self.Session.query(New_order.order_id, New_order.state).filter(New_order.user_id == user_id)
+            if cursor.count() != 0:
+                for row in cursor:
+                    order_list.append(row[0])
+            self.Session.commit()
+        except sqlalchemy.exc.IntegrityError as e:
+            return 528, "{}".format(str(e))
+        except BaseException as e:
+            return 530, "{}".format(str(e))
+        # print(order_list)
+        return 200, "ok", order_list
+
+    def query_order_para(self, user_id, para):
+        try:
+            order_list = []
+            if para != -1 and para != 0 and para != 1 and para != 2 and para != 3:
+                print(1)
+                return 524, "invalid order state.", order_list
+            row = self.Session.query(User.password).filter(User.user_id == user_id).first()
+            if row is None:
+                response = error.error_authorization_fail()
+                code = response[0]
+                message = response[1]
+                return code, message, order_list
+
+            cursor = self.Session.query(New_order.order_id).filter(New_order.user_id == user_id, New_order.state == para)
             if cursor.count() != 0:
                 for row in cursor:
                     order_list.append(row[0])
