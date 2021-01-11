@@ -15,32 +15,28 @@ class TestAddStockLevel:
         code = self.seller.create_store(self.store_id)
         assert code == 200
         book_db = book.BookDB()
-        self.books = book_db.get_book_info(0, 5)
+        self.books = book_db.get_book_id(0, 2)
         for bk in self.books:
-            code = self.seller.add_book(self.store_id, 0, bk)
+            code = self.seller.add_book(self.store_id, 0, bk, 20)
             assert code == 200
         yield
 
     def test_error_user_id(self):
-        for b in self.books:
-            book_id = b.id
+        for book_id in self.books:
             code = self.seller.add_stock_level(self.user_id + "_x", self.store_id, book_id, 10)
             assert code != 200
 
     def test_error_store_id(self):
-        for b in self.books:
-            book_id = b.id
+        for book_id in self.books:
             code = self.seller.add_stock_level(self.user_id, self.store_id + "_x", book_id, 10)
             assert code != 200
 
     def test_error_book_id(self):
-        for b in self.books:
-            book_id = b.id
+        for book_id in self.books:
             code = self.seller.add_stock_level(self.user_id, self.store_id, book_id + "_x", 10)
             assert code != 200
 
     def test_ok(self):
-        for b in self.books:
-            book_id = b.id
+        for book_id in self.books:
             code = self.seller.add_stock_level(self.user_id, self.store_id, book_id, 10)
             assert code == 200

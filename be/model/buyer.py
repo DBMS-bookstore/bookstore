@@ -27,15 +27,13 @@ class Buyer(db_conn.DBConn):
                 row = self.Session.query(Store).filter(Store.store_id==store_id, Store.book_id==book_id).first()
                 if row is None:
                     return error.error_non_exist_book_id(book_id) + (order_id, )
-                book_info_json = json.loads(row.book_info)
-                price = book_info_json.get("price")
+                price = row.price
                 if row.stock_level < count:
                     return error.error_stock_level_low(book_id) + (order_id,)
                 else:
                     row.stock_level -= count
                 new_order = New_order_detail(order_id=uid, book_id=book_id, count=count, price=price)
                 self.Session.add(new_order)
-            # print('插入订单')
             # 插入订单更新：添加两个属性
             new_ord = New_order(order_id=uid, store_id=store_id, user_id=user_id, state=0, create_time=time.time(), delivery_time=0)
             self.Session.add(new_ord)
@@ -73,34 +71,23 @@ class Buyer(db_conn.DBConn):
                 return error.error_non_exist_user_id(seller_id)
 
             cursor = self.Session.query(New_order_detail.book_id, New_order_detail.count, New_order_detail.price).filter(New_order_detail.order_id == order_id).all()
-            # print('cccc')
-            # print(cursor)
             total_price = 0
             for row4 in cursor:
                 count = row4[1]
                 price = row4[2]
                 total_price = total_price + price * count
-            # print('balance = ', row2.balance, 'price = ', total_price)
             if row2.balance < total_price:
                 return error.error_not_sufficient_funds(order_id)
             row2.balance -= total_price
-            # 加钱的是卖家
-            # row5 = self.Session.query(User).filter(User.user_id == seller_id).first()
-            # if row5 is None:
-            #     return error.error_non_exist_user_id(seller_id)
-            # row5.balance += total_price
             # 修改订单状态
             row6 = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
             if row6 is None:
                 return error.error_invalid_order_id(order_id)
             row6.state = 1
             self.Session.commit()
-            # row6 = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
-            # print('改状态：', row6.state)
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
-            # print('出错啦:', e)
             return 530, "{}".format(str(e))
         return 200, "ok"
 
@@ -113,11 +100,9 @@ class Buyer(db_conn.DBConn):
                 return error.error_authorization_fail()
             row.balance += add_value
             self.Session.commit()
-            row = self.Session.query(User).filter(User.user_id == user_id).first()
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
-            print(e)
             return 530, "{}".format(str(e))
         return 200, "ok"
 
@@ -131,9 +116,7 @@ class Buyer(db_conn.DBConn):
             row = self.Session.query(New_order).filter(New_order.order_id == order_id,
                                                        New_order.user_id == buyer_id).first()
             # store_id = cursor.store_id
-            print('可以')
             if row is None:
-                # print(order_id)
                 return error.error_invalid_order_id(order_id)
             # 用户主动删除该订单
             if row.state == 2 or row.state == 3:
@@ -142,8 +125,6 @@ class Buyer(db_conn.DBConn):
             if row.state == 0 or row.state == 1:
                 cursor = self.Session.query(New_order).filter(New_order.order_id == order_id,
                                                               New_order.user_id == buyer_id).first()
-                # cursor1 = self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).first()
-                # count = cursor.count
                 store_id = cursor.store_id
                 cursor1 = self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).all()
                 for each_row in cursor1:
@@ -153,9 +134,6 @@ class Buyer(db_conn.DBConn):
                                                                                Store.book_id == book_id).first()[0]
                     stock_level += count
                 if row.state == 0:
-                    #self.Session.query(New_order).filter(New_order.order_id == order_id,
-                                                         #New_order.user_id == buyer_id).delete()
-                    #self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).delete()
                     row.state = -1
                     self.Session.commit()
                     return 200, "ok"
@@ -170,10 +148,6 @@ class Buyer(db_conn.DBConn):
                         total_price = total_price + price * count
                     row5 = self.Session.query(User).filter(User.user_id == buyer_id).first()
                     row5.balance += total_price
-
-                #self.Session.query(New_order).filter(New_order.order_id == order_id,
-                                                     #New_order.user_id == buyer_id).delete()
-                #self.Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).delete()
                 row.state = -1
                 self.Session.commit()
                 return 200, "ok"
@@ -194,16 +168,16 @@ class Buyer(db_conn.DBConn):
                 message = response[1]
                 return code, message, order_list
 
-            cursor = self.Session.query(New_order.order_id, New_order.state).filter(New_order.user_id == user_id)
-            if cursor.count() != 0:
+            cursor = self.Session.query(New_order.order_id, New_order.state).filter(New_order.user_id == user_id).all()
+            if cursor is not None:
                 for row in cursor:
-                    order_list.append(row[0])
+                    if row[1] != -1:
+                        order_list.append(row[0])
             self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
             return 530, "{}".format(str(e))
-        # print(order_list)
         return 200, "ok", order_list
 
     def query_order_para(self, user_id, para):
@@ -228,7 +202,6 @@ class Buyer(db_conn.DBConn):
             return 528, "{}".format(str(e))
         except BaseException as e:
             return 530, "{}".format(str(e))
-        # print(order_list)
         return 200, "ok", order_list
 
     def query_order_state(self, order_id):
@@ -260,7 +233,6 @@ class Buyer(db_conn.DBConn):
             return 528, "{}".format(str(e))
         except BaseException as e:
             return 530, "{}".format(str(e))
-        # print(order_list)
         return 200, "ok", order_detail_list
 
     def receive_book(self, user_id: str, order_id: str) -> (int, str):
@@ -271,8 +243,6 @@ class Buyer(db_conn.DBConn):
             if not self.order_id_exist(order_id):
                 return error.error_invalid_order_id(order_id)
             row = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
-            # if row is None:
-            #     return error.error_invalid_order_id(order_id)
             if row.state != 2:
                 return error.error_cannot_receive_book()
             row.state = 3
@@ -308,10 +278,6 @@ class Buyer(db_conn.DBConn):
             if books is None:
                 return error.error_no_book()
             book_list = []
-            # if books is None:
-            #     code, message = error.error_no_book()
-            #     return code, message, 0
-            # else:
             print(books)
             for book in books:
                 stock_level = self.Session.query(Store.stock_level).filter(Store.store_id == book.store_id,
@@ -325,7 +291,6 @@ class Buyer(db_conn.DBConn):
                     'tags': book.tags,
                     'stock_level': stock_level
                 }
-                print('您要查找的书籍为：', this_book)
                 book_list.append(this_book)
             pages = len(book_list)/page_size
             self.Session.commit()
@@ -333,17 +298,14 @@ class Buyer(db_conn.DBConn):
             return 528, "{}".format(str(e)), 0, []
         except BaseException as e:
             return 530, "{}".format(str(e)), 0, []
-        # print(order_list)
         return 200, "ok", pages, book_list[first-1:page_size-1]
 
     def search_book_store(self, query: str, store_id: str, first: int):
         try:
-            print('search')
             if not self.store_id_exist(store_id):
                 code, message = error.error_non_exist_store_id(store_id)
                 return code, message, 0, []
             page_size = 2
-            print('执行sql')
             books = self.Session.execute("SELECT * FROM book_onsale where store_id='%s' and "
                                          "posting @@ to_tsquery('public.jiebacfg', '%s');"% (store_id, query)).fetchall()
             if books is None:
@@ -353,7 +315,6 @@ class Buyer(db_conn.DBConn):
             for book in books:
                 stock_level = self.Session.query(Store.stock_level).filter(Store.store_id==book.store_id, Store.book_id==book.book_id).first()[0]
                 this_book = {
-                    # 'store_id': book.store_id,
                     'book_id': book.book_id,
                     'title': book.title,
                     'price': book.price,
@@ -361,16 +322,13 @@ class Buyer(db_conn.DBConn):
                     'tags':book.tags,
                     'stock_level': stock_level
                 }
-                print('您要查找的书籍为：', this_book)
                 book_list.append(this_book)
             pages = len(book_list)/page_size
             self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e)), 0, []
         except BaseException as e:
-            print('错误：', e)
             return 530, "{}".format(str(e)), 0, []
-        # print(order_list)
         return 200, "ok", pages, book_list[first-1:page_size-1]
 
     def search_book_all_tag(self, tag: str, first: int):
@@ -380,10 +338,6 @@ class Buyer(db_conn.DBConn):
             if books is None:
                 return error.error_no_book()
             book_list = []
-            # if books is None:
-            #     code, message = error.error_no_book()
-            #     return code, message, 0
-            # else:
             print(books)
             for book in books:
                 stock_level = self.Session.query(Store.stock_level).filter(Store.store_id == book.store_id,
@@ -397,7 +351,6 @@ class Buyer(db_conn.DBConn):
                     'tags': book.tags,
                     'stock_level': stock_level
                 }
-                print('您要查找的书籍为：', this_book)
                 book_list.append(this_book)
             pages = len(book_list)/page_size
             self.Session.commit()
@@ -405,17 +358,14 @@ class Buyer(db_conn.DBConn):
             return 528, "{}".format(str(e)), 0, []
         except BaseException as e:
             return 530, "{}".format(str(e)), 0, []
-        # print(order_list)
         return 200, "ok", pages, book_list[first-1:page_size-1]
 
     def search_book_store_tag(self, tag: str, store_id: str, first: int):
         try:
-            print('search')
             if not self.store_id_exist(store_id):
                 code, message = error.error_non_exist_store_id(store_id)
                 return code, message, 0, []
             page_size = 2
-            print('执行sql')
             books = self.Session.query(Book_Onsale).filter(Book_Onsale.store_id==store_id, Book_Onsale.tags.like('%{tag}%'.format(tag=tag))).all()
             if books is None:
                 return error.error_no_book()
@@ -432,14 +382,12 @@ class Buyer(db_conn.DBConn):
                     'tags':book.tags,
                     'stock_level': stock_level
                 }
-                print('您要查找的书籍为：', this_book)
                 book_list.append(this_book)
             pages = len(book_list)/page_size
             self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e)), 0, []
         except BaseException as e:
-            print('错误：', e)
             return 530, "{}".format(str(e)), 0, []
         # print(order_list)
         return 200, "ok", pages, book_list[first-1:page_size-1]
@@ -451,10 +399,6 @@ class Buyer(db_conn.DBConn):
             if books is None:
                 return error.error_no_book()
             book_list = []
-            # if books is None:
-            #     code, message = error.error_no_book()
-            #     return code, message, 0
-            # else:
             print(books)
             for book in books:
                 stock_level = self.Session.query(Store.stock_level).filter(Store.store_id == book.store_id,
@@ -468,7 +412,6 @@ class Buyer(db_conn.DBConn):
                     'tags': book.tags,
                     'stock_level': stock_level
                 }
-                print('您要查找的书籍为：', this_book)
                 book_list.append(this_book)
             pages = len(book_list)/page_size
             self.Session.commit()
@@ -476,17 +419,14 @@ class Buyer(db_conn.DBConn):
             return 528, "{}".format(str(e)), 0, []
         except BaseException as e:
             return 530, "{}".format(str(e)), 0, []
-        # print(order_list)
         return 200, "ok", pages, book_list[first-1:page_size-1]
 
     def search_book_store_title(self, title: str, store_id: str, first: int):
         try:
-            print('search')
             if not self.store_id_exist(store_id):
                 code, message = error.error_non_exist_store_id(store_id)
                 return code, message, 0, []
             page_size = 2
-            print('执行sql')
             books = self.Session.query(Book_Onsale).filter(Book_Onsale.store_id==store_id, Book_Onsale.title.like('%{title}%'.format(title=title))).all()
             if books is None:
                 return error.error_no_book()
@@ -495,7 +435,6 @@ class Buyer(db_conn.DBConn):
             for book in books:
                 stock_level = self.Session.query(Store.stock_level).filter(Store.store_id==book.store_id, Store.book_id==book.book_id).first()[0]
                 this_book = {
-                    # 'store_id': book.store_id,
                     'book_id': book.book_id,
                     'title': book.title,
                     'price': book.price,
@@ -503,16 +442,13 @@ class Buyer(db_conn.DBConn):
                     'tags':book.tags,
                     'stock_level': stock_level
                 }
-                print('您要查找的书籍为：', this_book)
                 book_list.append(this_book)
             pages = len(book_list)/page_size
             self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e)), 0, []
         except BaseException as e:
-            print('错误：', e)
             return 530, "{}".format(str(e)), 0, []
-        # print(order_list)
         return 200, "ok", pages, book_list[first-1:page_size-1]
 
     def search_book_all_author(self, author: str, first: int):
@@ -522,10 +458,6 @@ class Buyer(db_conn.DBConn):
             if books is None:
                 return error.error_no_book()
             book_list = []
-            # if books is None:
-            #     code, message = error.error_no_book()
-            #     return code, message, 0
-            # else:
             print(books)
             for book in books:
                 stock_level = self.Session.query(Store.stock_level).filter(Store.store_id == book.store_id,
@@ -539,7 +471,6 @@ class Buyer(db_conn.DBConn):
                     'tags': book.tags,
                     'stock_level': stock_level
                 }
-                print('您要查找的书籍为：', this_book)
                 book_list.append(this_book)
             pages = len(book_list)/page_size
             self.Session.commit()
@@ -547,17 +478,14 @@ class Buyer(db_conn.DBConn):
             return 528, "{}".format(str(e)), 0, []
         except BaseException as e:
             return 530, "{}".format(str(e)), 0, []
-        # print(order_list)
         return 200, "ok", pages, book_list[first-1:page_size-1]
 
     def search_book_store_author(self, author: str, store_id: str, first: int):
         try:
-            print('search')
             if not self.store_id_exist(store_id):
                 code, message = error.error_non_exist_store_id(store_id)
                 return code, message, 0, []
             page_size = 2
-            print('执行sql')
             books = self.Session.query(Book_Onsale).filter(Book_Onsale.store_id==store_id, Book_Onsale.author.like('%{author}%'.format(author=author))).all()
             if books is None:
                 return error.error_no_book()
@@ -566,7 +494,6 @@ class Buyer(db_conn.DBConn):
             for book in books:
                 stock_level = self.Session.query(Store.stock_level).filter(Store.store_id==book.store_id, Store.book_id==book.book_id).first()[0]
                 this_book = {
-                    # 'store_id': book.store_id,
                     'book_id': book.book_id,
                     'title': book.title,
                     'price': book.price,
@@ -574,16 +501,13 @@ class Buyer(db_conn.DBConn):
                     'tags':book.tags,
                     'stock_level': stock_level
                 }
-                print('您要查找的书籍为：', this_book)
                 book_list.append(this_book)
             pages = len(book_list)/page_size
             self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e)), 0, []
         except BaseException as e:
-            print('错误：', e)
             return 530, "{}".format(str(e)), 0, []
-        # print(order_list)
         return 200, "ok", pages, book_list[first-1:page_size-1]
 
 

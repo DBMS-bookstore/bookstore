@@ -29,7 +29,7 @@ class TestAutoCancle:
 
     def test_auto_cancle(self):
         # 暂时设置超时60s未付款就取消订单
-        time.sleep(100)
+        time.sleep(70)
         # 然后去查询订单
         code, order_list = self.buyer.query_order(self.buyer_id)
         assert len(order_list) == 0

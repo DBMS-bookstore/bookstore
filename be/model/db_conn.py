@@ -7,7 +7,7 @@ from init_db.ConnectDB import User, Store, User_store, New_order
 class DBConn:
     def __init__(self):
         # self.conn = store.get_db_conn()
-        engine = create_engine('postgresql+psycopg2://postgres:zke20001231@localhost:5432/bookstore', encoding='utf-8', echo=True)
+        engine = create_engine('postgresql+psycopg2://postgres:123456@localhost:5433/bookstore', encoding='utf-8', echo=True)
         # base = declarative_base()
         db_session_class = sessionmaker(bind=engine)  # db_session_class 仅仅是一个类
         self.Session = db_session_class()
