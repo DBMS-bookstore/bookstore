@@ -7,7 +7,7 @@ from fe.test.gen_book_data import GenBook
 import uuid
 
 
-class TestDeliveryBook:
+class TestReceiveBook:
     @pytest.fixture(autouse=True)
     def pre_run_initialization(self):
         # do before test
@@ -23,12 +23,12 @@ class TestDeliveryBook:
         assert ok
         self.buy_book_info_list = self.gen_book.buy_book_info_list
         for item in self.buy_book_info_list:
-            book: Book = item[0]
+            price = item[2]
             num = item[1]
-            if book.price is None:
+            if price is None:
                 continue
             else:
-                self.total_price = self.total_price + book.price * num
+                self.total_price = self.total_price + price * num
         code, self.order_id = self.buyer.new_order(self.store_id, buy_book_id_list)
         assert code == 200
 

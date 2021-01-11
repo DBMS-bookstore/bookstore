@@ -23,12 +23,13 @@ class TestAutoReceive:
         assert ok
         self.buy_book_info_list = self.gen_book.buy_book_info_list
         for item in self.buy_book_info_list:
-            book: Book = item[0]
+            # book: Book = item[0]
+            price = item[2]
             num = item[1]
-            if book.price is None:
+            if price is None:
                 continue
             else:
-                self.total_price = self.total_price + book.price * num
+                self.total_price = self.total_price + price * num
         code, self.order_id = self.buyer.new_order(self.store_id, buy_book_id_list)
         assert code == 200
         yield

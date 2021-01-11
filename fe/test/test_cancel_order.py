@@ -13,7 +13,6 @@ class TestCancelOrder:
         self.buyer_id = "test_cancel_order_buyer_id_{}".format(str(uuid.uuid1()))
         self.store_id = "test_cancel_order_store_id_{}".format(str(uuid.uuid1()))
         self.password = self.buyer_id
-
         self.total_price = 0
         self.buyer = register_new_buyer(self.buyer_id, self.password)
         self.gen_book = GenBook(self.seller_id, self.store_id)
@@ -21,12 +20,12 @@ class TestCancelOrder:
         assert ok
         self.buy_book_info_list = self.gen_book.buy_book_info_list
         for item in self.buy_book_info_list:
-            book: Book = item[0]
+            price = item[2]
             num = item[1]
-            if book.price is None:
+            if price is None:
                 continue
             else:
-                self.total_price = self.total_price + book.price * num
+                self.total_price = self.total_price + price * num
         code, self.order_id = self.buyer.new_order(self.store_id, buy_book_id_list)
         assert code == 200
         yield
