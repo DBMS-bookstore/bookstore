@@ -78,8 +78,9 @@ def delete_order(seconds):
                     count = x[1]
                     stock_level = Session.query(Store.stock_level).filter(Store.store_id == store_id, Store.book_id == book_id).first()[0]
                     stock_level += count
-                Session.query(New_order).filter(New_order.order_id == order_id).delete()
-                Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).delete()
+                # Session.query(New_order).filter(New_order.order_id == order_id).delete()
+                # Session.query(New_order_detail).filter(New_order_detail.order_id == order_id).delete()
+                row.state = -1
             print(delivery_time)
             if delivery_time > 0:
                 if time.time() - delivery_time >= 60 and state == 2:

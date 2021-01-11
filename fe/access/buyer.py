@@ -61,6 +61,18 @@ class Buyer:
         response_json = r.json()
         return r.status_code, response_json.get("order_list")
 
+    def query_order_para(self, user_id, para):
+        json = {"user_id": user_id,
+                "para": para
+        }
+        url = urljoin(self.url_prefix, "query_order_para")
+        headers = {"token": self.token}
+        r = requests.post(url, headers=headers, json=json)
+        print('access')
+        print(r)
+        response_json = r.json()
+        return r.status_code, response_json.get("order_list")
+
     def query_order_state(self, order_id):
         json = {"order_id": order_id}
         url = urljoin(self.url_prefix, "query_order_state")

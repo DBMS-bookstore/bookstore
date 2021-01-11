@@ -52,7 +52,7 @@ Status Code:
 码 | 描述
 --- | ---
 200 | 下单成功
-5XX | 买家用户ID不存在
+511 | 买家用户ID不存在
 5XX | 商铺ID不存在
 5XX | 购买的图书不存在
 5XX | 商品库存不足
@@ -196,6 +196,38 @@ POST http://[address]/buyer/query_order
 | Key      | 类型   | 描述   | 是否可为空 |
 | -------- | ------ | ------ | ---------- |
 | order_id | string | 订单id | N          |
+
+Status Code:
+
+| 码   | 描述         |
+| ---- | ------------ |
+| 200  | 查看订单成功 |
+| 401  | 授权失败     |
+| 5XX  | 无效参数     |
+
+## 买家查看指定状态的订单（返回订单号列表，可以查询已取消的历史订单）
+
+#### URL：
+
+POST http://[address]/buyer/query_order_state
+
+#### Request
+
+**Body：**
+
+```
+{
+    "order_id": order_id
+    "para": para
+}
+```
+
+##### 属性说明：
+
+| Key      | 类型   | 描述   | 是否可为空 |
+| -------- | ------ | ------ | ---------- |
+| order_id | string | 订单id | N          |
+|   para   | integer| 查询参数 | N          |
 
 Status Code:
 
