@@ -61,6 +61,16 @@ def query_order():
     return jsonify({"message": message, 'order_list': order_list}), code
 
 
+@bp_buyer.route("/query_order_para", methods=["GET", "POST"])
+def query_order_para():
+    user_id = request.json.get("user_id")
+    para = request.json.get("para")
+    b = Buyer()
+    code, message, order_list = b.query_order_para(user_id, para)
+    # print(order_list)
+    return jsonify({"message": message, 'order_list': order_list}), code
+
+
 @bp_buyer.route("/query_order_state", methods=["GET", "POST"])
 def query_order_state():
     order_id = request.json.get("order_id")
