@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
-import time
 from be.model import error
 from be.model import db_conn
 from init_db.ConnectDB import Store, User_store, New_order, Book
@@ -13,7 +11,7 @@ class Seller(db_conn.DBConn):
     def __init__(self):
         db_conn.DBConn.__init__(self)
 
-    def add_book(self, user_id: str, store_id: str, book_id: str, book_json_str: str, stock_level: int):
+    def add_book(self, user_id: str, store_id: str, book_id: str, stock_level: int, price:int):
         try:
             if not self.user_id_exist(user_id):
                 return error.error_non_exist_user_id(user_id)
@@ -21,24 +19,17 @@ class Seller(db_conn.DBConn):
                 return error.error_non_exist_store_id(store_id)
             if self.book_id_exist(store_id, book_id):
                 return error.error_exist_book_id(book_id)
-            obj = Store(store_id=store_id, book_id=book_id, book_info=book_json_str, stock_level=stock_level)
+            obj = Store(store_id=store_id, book_id=book_id, stock_level=stock_level, price=price)
             self.Session.add(obj)
-            this_book = self.Session.query(Book).filter(Book.book_id==book_id).first()
-            # print('title长这样:', this_book.title)
-            # print('书长这样：', this_book.picture)
+            this_book = self.Session.query(Book).filter(Book.book_id == book_id).first()
             if this_book.book_intro:
                 this_book.book_intro = str(this_book.book_intro)
             if this_book.content:
                 this_book.content = str(this_book.book_intro)
-            # self.Session.execute("INSERT INTO book_onsale "
-            #                      "VALUES('%s','%s','%s','%s','%s',%d,'%s','%s','%s')"
-            #                      %(store_id, book_id, this_book.title, this_book.author,this_book.translator, this_book.price,this_book.book_intro,this_book.content,this_book.tags))
             book_onsale_obj = Book_Onsale(store_id=store_id, book_id=book_id, title=this_book.title, author=this_book.author,
-                                          translator=this_book.translator, price=this_book.price,
+                                          translator=this_book.translator, price=price,
                                           book_intro=this_book.book_intro, content=this_book.content, tags=this_book.tags)
             self.Session.add(book_onsale_obj)
-            # self.Session.execute("INSERT into store(store_id, book_id, book_info, stock_level)"
-            #                   "VALUES (?, ?, ?, ?)", (store_id, book_id, book_json_str, stock_level))
             self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
@@ -55,13 +46,14 @@ class Seller(db_conn.DBConn):
                 return error.error_non_exist_store_id(store_id)
             if not self.book_id_exist(store_id, book_id):
                 return error.error_non_exist_book_id(book_id)
-            row = self.Session.query(Store.stock_level).filter(Store.store_id == store_id, Store.book_id == book_id).first()
-            stoke_level = row[0]
-            stoke_level += add_stock_level
+            row = self.Session.query(Store).filter(Store.store_id == store_id, Store.book_id == book_id).first()
+            stock_level = row.stock_level
+            row.stock_level = stock_level + add_stock_level
             self.Session.commit()
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:
+            print('加库存出错:',e)
             return 530, "{}".format(str(e))
         return 200, "ok"
 
@@ -82,33 +74,21 @@ class Seller(db_conn.DBConn):
 
     def delivery_book(self, user_id: str, order_id: str) -> (int, str):
         try:
-            print(0)
             if not self.user_id_exist(user_id):
-                print(1)
                 return error.error_non_exist_user_id(user_id)
             if not self.order_id_exist(order_id):
-                print(2)
                 return error.error_invalid_order_id(order_id)
-            print(3)
             row = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
-            print(4)
             if row is None:
                 return error.error_invalid_order_id(order_id)
-            print(5)
-            print('目前状态为：', row.state)
             if row.state == 0:
-                print(6)
                 return error.error_no_payment_to_deliver()
             elif row.state == 2 or row.state == 3:
-                print(7)
                 return error.error_already_delivered()
-            print(8)
             row.state = 2
-            print(9)
             row.delivery_time = time.time()
             self.Session.commit()
             row = self.Session.query(New_order).filter(New_order.order_id == order_id).first()
-            print('已发货：', row.state)
         except sqlalchemy.exc.IntegrityError as e:
             return 528, "{}".format(str(e))
         except BaseException as e:

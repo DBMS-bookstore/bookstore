@@ -20,11 +20,11 @@ def seller_create_store():
 def seller_add_book():
     user_id: str = request.json.get("user_id")
     store_id: str = request.json.get("store_id")
-    book_info: str = request.json.get("book_info")
+    book_id: str = request.json.get("book_id")
     stock_level: str = request.json.get("stock_level", 0)
-
+    price: int = request.json.get("price")
     s = seller.Seller()
-    code, message = s.add_book(user_id, store_id, book_info.get("id"), json.dumps(book_info), stock_level)
+    code, message = s.add_book(user_id, store_id, book_id, stock_level, price)
 
     return jsonify({"message": message}), code
 
@@ -46,7 +46,6 @@ def add_stock_level():
 def seller_delivery_book():
     user_id: str = request.json.get("user_id")
     order_id: str = request.json.get("order_id")
-
     s = seller.Seller()
     code, message = s.delivery_book(user_id, order_id)
     return jsonify({"message": message}), code
