@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
-import time
 from be.model import error
 from be.model import db_conn
 from init_db.ConnectDB import Store, User_store, New_order, Book

@@ -305,7 +305,7 @@ class Buyer(db_conn.DBConn):
             if not self.store_id_exist(store_id):
                 code, message = error.error_non_exist_store_id(store_id)
                 return code, message, 0, []
-            page_size = 2
+            page_size = 20
             books = self.Session.execute("SELECT * FROM book_onsale where store_id='%s' and "
                                          "posting @@ to_tsquery('public.jiebacfg', '%s');"% (store_id, query)).fetchall()
             if books is None:
@@ -394,7 +394,7 @@ class Buyer(db_conn.DBConn):
 
     def search_book_all_title(self, title: str, first: int):
         try:
-            page_size = 2
+            page_size = 10
             books = self.Session.query(Book_Onsale).filter(Book_Onsale.title.like('%{title}%'.format(title=title))).all()
             if books is None:
                 return error.error_no_book()

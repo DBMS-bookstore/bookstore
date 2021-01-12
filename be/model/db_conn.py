@@ -1,7 +1,4 @@
-from be.model import store
-from sqlalchemy import create_engine, ForeignKey, Index
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Text, TIMESTAMP, LargeBinary#区分大小写
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from init_db.ConnectDB import User, Store, User_store, New_order
 class DBConn:

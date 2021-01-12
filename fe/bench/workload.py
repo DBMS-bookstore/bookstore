@@ -36,11 +36,9 @@ class Workload:
         self.book_ids = []
         self.buyer_ids = []
         self.store_ids = []
-        print('1')
         self.book_db = book.BookDB()
-        # self.book_db = book.BookDB(conf.Use_Large_DB)
-        print('init')
         self.row_count = self.book_db.get_book_count()
+
         self.book_num_per_store = conf.Book_Num_Per_Store
         if self.row_count < self.book_num_per_store:
             self.book_num_per_store = self.row_count
@@ -78,7 +76,6 @@ class Workload:
     def gen_database(self):
         logging.info("load data")
         for i in range(1, self.seller_num + 1):
-            print(i)
             user_id, password = self.to_seller_id_and_password(i)
             seller = register_new_seller(user_id, password)
             for j in range(1, self.store_num_per_user + 1):
