@@ -6,6 +6,7 @@ from be.model import db_conn
 import sqlalchemy
 from init_db import ConnectDB
 
+
 U = ConnectDB.User
 def jwt_encode(user_id: str, terminal: str) -> str:
     encoded = jwt.encode(
@@ -14,6 +15,7 @@ def jwt_encode(user_id: str, terminal: str) -> str:
         algorithm="HS256",
     )
     return encoded.encode('utf-8').decode("utf-8")
+
 
 def jwt_decode(encoded_token, user_id: str) -> str:
     decoded = jwt.decode(encoded_token, key=user_id, algorithms="HS256")
@@ -39,6 +41,7 @@ class User(db_conn.DBConn):
         except jwt.exceptions.InvalidSignatureError as e:
             logging.error(str(e))
             return False
+
 
     def register(self, user_id: str, password: str):
         try:
